@@ -1,0 +1,25 @@
+{
+  "name": "ybuilder",
+  "version": "1.0.0",
+  "description": "Settings and tools for building typescript projects",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yuyaryshev/ybuilder.git"
+  },
+  "keywords": [
+    "ybuilder",
+    "babel",
+    "typescript",
+    "bundler"
+  ],
+  "author": "Yuri Yaryshev",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/yuyaryshev/ybuilder/issues"
+  },
+  "homepage": "https://github.com/yuyaryshev/ybuilder#readme"
+}
