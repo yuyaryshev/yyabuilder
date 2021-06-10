@@ -5,7 +5,8 @@ const { shelljs } = require("./yshelljs.js");
 const { runBabelEsm, runBabelCjs, runBabelAll } = require("./runBabel.js");
 const { runTypescriptEsm, runTypescriptCjs, runTypescriptAll } = require("./runTypescript.js");
 const { cleanEsm, cleanCjs, cleanTypes, cleanTs, cleanAll } = require("./clean.js");
-const { genversion } = require("./genversion.js");
+const { genprojmeta } = require("./genprojmeta.js");
+const {massReplace} = require( "./massReplace.js");
 
 /**
  * Starts up console application
@@ -20,12 +21,24 @@ function startCli() {
     // .option("--interval", "NOT USED - Interval in seconds before watch notification, default 10 seconds")
 
     program
-        .command("genversion")
+        .command("genprojmeta")
         .description("Generates src/version.ts file")
-        .action(function cmd_genversion(targetPath, options, command) {
+        .action(function cmd_genprojmeta(targetPath, options, command) {
             //const { db, rebuild, nowatch, interval, nodb } = program.opts();
-            genversion();
+            genprojmeta("src");
+            genprojmeta("esm");
+            genprojmeta("cjs");
         });
+
+
+    program
+        .command("replace <replacers> <glob>")
+        .description("Generates src/version.ts file")
+        .action(function cmd_replace(targetPath, options, command) {
+            massReplace
+
+        });
+
 
     program
         .command("clean_esm")

@@ -7,7 +7,7 @@ const babelPath = resolve(myPath, `node_modules/.bin/babel`);
 const babelConfig = { esm: resolve(myPath, "src/config", `babel.esm.config.cjs`), cjs: resolve(myPath, "src/config", `babel.cjs.config.cjs`) };
 const extensions = ".ts,.tsx,.js,.jsx";
 
-// console.log(`ybuilderBabelPath = `, babelPath);
+// console.log(`yyabuilderBabelPath = `, babelPath);
 
 function babelCmd({ modules, watch }) {
     return `${babelPath} src --config-file ${babelConfig[modules]} --out-dir lib/${modules} --extensions \"${extensions}\" --source-maps${

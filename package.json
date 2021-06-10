@@ -1,6 +1,6 @@
 {
-    "name": "ybuilder",
-    "version": "1.0.11",
+    "name": "yyabuilder",
+    "version": "1.0.23",
     "private": false,
     "description": "Settings and tools for building typescript projects",
     "type": "commonjs",
@@ -8,7 +8,7 @@
     "bin": {
         "yb": "bin/yb.js",
         "ybuild": "bin/yb.js",
-        "ybuilder": "bin/yb.js"
+        "yyabuilder": "bin/yb.js"
     },
     "files": [
         ".gitignore",
@@ -25,24 +25,27 @@
         "start": "node bin/yb.js",
         "test": "jest",
         "build": "echo No build needed",
-        "republish": "npm run build && npx version-select && npx genversion --semi version.cjs && npm publish && npm uninstall -g ybuilder && npm i -g ybuilder --legacy-peer-deps && yb --version"
+        "republish": "npm run build && npx version-select && npx genversion --semi version.cjs && npm publish && npm uninstall -g yyabuilder && npm i -g yyabuilder --legacy-peer-deps && yb --version"
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/yuyaryshev/ybuilder.git"
+        "url": "https://github.com/yuyaryshev/yyabuilder.git"
     },
     "keywords": [
-        "ybuilder",
+        "yyabuilder",
         "babel",
         "typescript",
         "bundler"
     ],
     "author": "Yuri Yaryshev",
     "license": "UNLICENSED",
-    "bugs": {
-        "url": "https://github.com/yuyaryshev/ybuilder/issues"
+    "publishConfig": {
+        "registry": "http://registry.npmjs.org"
     },
-    "homepage": "https://github.com/yuyaryshev/ybuilder#readme",
+    "bugs": {
+        "url": "https://github.com/yuyaryshev/yyabuilder/issues"
+    },
+    "homepage": "https://github.com/yuyaryshev/yyabuilder#readme",
     "plainDependencies": true,
     "dependencies": {
         "@babel/cli": "7.12.8",
@@ -68,7 +71,7 @@
         "commander": "^7.0.0",
         "execa": "^5.0.0",
         "fs-extra": "^10.0.0",
-        "genversion": "^3.0.0",
+        "globby": "^11.0.3",
         "inquirer": "^7.3.3",
         "inquirer-table-prompt": "^0.2.1",
         "json5": "^2.2.0",

@@ -35,7 +35,6 @@ function cleanTypes() {
     const cmd = cleanCmd({ modules: "types" });
     console.log(cmd);
     printStd(shelljs.exec(cmd));
-    writePackageJsonToLib({ modules: "cjs" });
 }
 
 function cleanTs() {
