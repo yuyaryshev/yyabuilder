@@ -4,9 +4,12 @@ const version = require("../version.cjs");
 const { shelljs } = require("./yshelljs.js");
 const { runBabelEsm, runBabelCjs, runBabelAll } = require("./runBabel.js");
 const { runTypescriptEsm, runTypescriptCjs, runTypescriptAll } = require("./runTypescript.js");
-const { cleanEsm, cleanCjs, cleanTypes, cleanTs, cleanAll } = require("./clean.js");
+const { cleanEsm, cleanCjs, cleanTypes, cleanTs, cleanDocs, cleanFrontend, cleanAll } = require("./clean.js");
 const { genprojmeta } = require("./genprojmeta.js");
-const {massReplace} = require( "./massReplace.js");
+const { massReplace } = require("./massReplace.js");
+const { fix_cpls } = require("ycplmon");
+const { inprint } = require("inprint");
+const { add_js_to_imports } = require("./add_js_to_imports.js");
 
 /**
  * Starts up console application
@@ -30,15 +33,12 @@ function startCli() {
             genprojmeta("cjs");
         });
 
-
     program
         .command("replace <replacers> <glob>")
         .description("Generates src/version.ts file")
         .action(function cmd_replace(targetPath, options, command) {
-            massReplace
-
+            massReplace;
         });
-
 
     program
         .command("clean_esm")
@@ -70,6 +70,20 @@ function startCli() {
         });
 
     program
+        .command("clean_frontend")
+        .description("Cleans ts output directory")
+        .action(function clean_frontend_cmd(targetPath, options, command) {
+            cleanFrontend();
+        });
+
+    program
+        .command("clean_docs")
+        .description("Cleans docs directory")
+        .action(function clean_docs(targetPath, options, command) {
+            cleanDocs();
+        });
+
+    program
         .command("clean_all")
         .description("Cleans types output directory")
         .action(function clean_all(targetPath, options, command) {
@@ -89,6 +103,36 @@ function startCli() {
         .description("Builds current project with babel cjs configuration")
         .action(function build_cjs(targetPath, options, command) {
             runBabelCjs();
+        });
+
+    program
+        .command("fix_cpls")
+        .description("Makes all 'CODE????????' unique inside src folder")
+        .action(function fix_cpl_cmd(targetPath, options, command) {
+            fix_cpls();
+        });
+
+    program
+        .command("inprint")
+        .description("Executes inprint for src folder")
+        .action(function inprint_cmd(targetPath, options, command) {
+            inprint();
+        });
+
+    program
+        .command("add_js_to_imports")
+        .description("Executes inprint for src folder")
+        .action(function add_js_to_imports_cmd(targetPath, options, command) {
+            add_js_to_imports();
+        });
+
+    program
+        .command("precompile")
+        .description("Adds .js extension to all imports, fixes cpl, executes inprint for src folder")
+        .action(function precompile_cmd(targetPath, options, command) {
+            add_js_to_imports();
+            fix_cpls();
+            inprint();
         });
 
     // YYA: Typescript wont work! Because it takes path from tsconfig.json location, so I can't start it with config file located in this project!
