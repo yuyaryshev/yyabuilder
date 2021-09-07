@@ -1,20 +1,20 @@
-const { join: joinPath } = require("path");
-const { Command } = require("commander");
-const version = require("../version.cjs");
-const { shelljs } = require("./yshelljs.js");
-const { runBabelEsm, runBabelCjs, runBabelAll } = require("./runBabel.js");
-const { runTypescriptEsm, runTypescriptCjs, runTypescriptAll } = require("./runTypescript.js");
-const { cleanEsm, cleanCjs, cleanTypes, cleanTs, cleanDocs, cleanFrontend, cleanAll } = require("./clean.js");
-const { genprojmeta } = require("./genprojmeta.js");
-const { massReplace } = require("./massReplace.js");
-const { fix_cpls } = require("ycplmon");
-const { inprint } = require("inprint");
-const { add_js_to_imports } = require("./add_js_to_imports.js");
+import { join as joinPath } from "path";
+import { Command } from "commander";
+import { shelljs } from "./yshelljs.js";
+import { runBabelEsm, runBabelCjs, runBabelAll } from "./runBabel.js";
+import { runTypescriptEsm, runTypescriptCjs, runTypescriptAll } from "./runTypescript.js";
+import { cleanEsm, cleanCjs, cleanTypes, cleanTs, cleanDocs, cleanFrontend, cleanAll } from "./clean.js";
+import { genprojmeta } from "./genprojmeta.js";
+import { massReplace } from "./massReplace.js";
+import { add_js_to_imports } from "./add_js_to_imports.js";
+import {version} from "./projmeta";
+import {fix_cpls} from "./ycplmon";
+import {inprint} from "./inprint";
 
 /**
  * Starts up console application
  */
-function startCli() {
+export function startCli() {
     const program = new Command();
     program.version(version);
     // .option("--full", "NOT USED - Rebuild the database")
@@ -162,5 +162,3 @@ function startCli() {
 
     program.parse(process.argv);
 }
-
-module.exports = { startCli };

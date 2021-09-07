@@ -1,56 +1,56 @@
-const { resolve, join } = require("path");
-const { shelljs } = require("./yshelljs.js");
-const { printStd } = require("./printStd.js");
-const { writeFileSyncIfChanged } = require("./writeFileSyncIfChanged.js");
-const { genprojmeta } = require("./genprojmeta.js");
+import { resolve, join } from "path";
+import { shelljs } from "./yshelljs.js";
+import { printStd } from "./printStd.js";
+import { writeFileSyncIfChanged } from "./writeFileSyncIfChanged.js";
+import { genprojmeta } from "./genprojmeta.js";
 
 const myPath = resolve(__dirname, `..`);
 
-function cleanCmd(...pathParts) {
+function cleanCmd(...pathParts: string[]) {
     const fullPath = join(...pathParts);
     console.log(`rm -rf ${fullPath}/*`);
     const r = shelljs.rm("-rf", `${fullPath}/*`);
     printStd(r);
 }
 
-function writePackageJsonToLib({ modules, type }) {
+function writePackageJsonToLib({ modules, type }: { modules: string; type?: string }) {
     const targetFile = resolve(`lib/${modules}/package.json`);
     const content = `{"type":"${type || (modules === "esm" ? "module" : "commonjs")}"}`;
     writeFileSyncIfChanged(targetFile, content);
     console.log(`${targetFile} = ${content} - created!`);
 }
 
-function cleanEsm() {
+export function cleanEsm() {
     cleanCmd("lib", "esm");
     genprojmeta("esm");
     writePackageJsonToLib({ modules: "esm" });
 }
 
-function cleanCjs() {
+export function cleanCjs() {
     cleanCmd("lib", "cjs");
     genprojmeta("cjs");
     writePackageJsonToLib({ modules: "cjs" });
 }
 
-function cleanTypes() {
+export function cleanTypes() {
     cleanCmd("lib", "types");
 }
 
-function cleanTs() {
+export function cleanTs() {
     // Used for test compilation with tsc + jest only
     cleanCmd("lib", "ts");
 }
 
-function cleanFrontend() {
+export function cleanFrontend() {
     cleanCmd("lib", "frontend");
     writePackageJsonToLib({ modules: "cjs", type: "commonjs" });
 }
 
-function cleanDocs() {
+export function cleanDocs() {
     cleanCmd("docs");
 }
 
-function cleanAll() {
+export function cleanAll() {
     cleanCmd("lib");
     cleanCjs();
     cleanEsm();
@@ -59,7 +59,5 @@ function cleanAll() {
     cleanFrontend();
     cleanDocs();
 }
-
-module.exports = { cleanEsm, cleanCjs, cleanTypes, cleanTs, cleanDocs, cleanFrontend, cleanAll };
 
 // && node mjs_import.test.mjs && echo mjs import is ok!

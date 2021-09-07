@@ -1,3 +1,4 @@
+
 # Logs
 logs
 *.log
@@ -80,6 +81,7 @@ typings/
 
 # Nuxt.js build / generate output
 .nuxt
+dist
 lib
 node_modules
 /temp
@@ -90,6 +92,8 @@ node_modules
 # Comment in the public line in if your project uses Gatsby and *not* Next.js
 # https://nextjs.org/blog/next-9-1#public-directory-support
 # public
+# vuepress build output
+.vuepress/dist
 
 # Serverless directories
 .serverless/
@@ -102,3 +106,40 @@ node_modules
 
 # TernJS port file
 .tern-port
+
+
+private.json
+private.js
+private.cjs
+private.mjs
+private.ts
+
+settings.json
+settings.js
+settings.cjs
+
+
+
+settings.mjs
+
+
+
+settings.ts
+
+
+
+/ts_out
+/yinstr_out
+/docs
+/out
+/ut_temp
+distCompiled
+/ut_hasty2.db
+/src/AppIDE/server/domains_gen
+/src/AppIDE/server/domains_gen
+*.parser_log
+
+
+/.idea/workspace.xml
+
+        

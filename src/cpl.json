@@ -1,0 +1,112 @@
+[
+ {
+  "cpl": 555000,
+  "filePath": "src\\add_js_to_imports.ts",
+  "pos": 3287
+ },
+ {
+  "cpl": 18,
+  "filePath": "src\\add_js_to_imports.ts",
+  "pos": 4000
+ },
+ {
+  "cpl": 990000,
+  "filePath": "src\\add_js_to_imports.ts",
+  "pos": 4092
+ },
+ {
+  "cpl": 993330,
+  "filePath": "src\\add_js_to_imports.ts",
+  "pos": 4115
+ },
+ {
+  "cpl": 1,
+  "filePath": "src\\inprint\\inprint.ts",
+  "pos": 1765
+ },
+ {
+  "cpl": 2,
+  "filePath": "src\\inprint\\inprint.ts",
+  "pos": 2447
+ },
+ {
+  "cpl": 3,
+  "filePath": "src\\inprint\\inprint.ts",
+  "pos": 4645
+ },
+ {
+  "cpl": 10,
+  "filePath": "src\\inprint\\inprint.ts",
+  "pos": 5989
+ },
+ {
+  "cpl": 4,
+  "filePath": "src\\inprint\\inprint.ts",
+  "pos": 6441
+ },
+ {
+  "cpl": 8,
+  "filePath": "src\\inprint\\inprint.ts",
+  "pos": 6898
+ },
+ {
+  "cpl": 23,
+  "filePath": "src\\inprint\\inprint.ts",
+  "pos": 7162
+ },
+ {
+  "cpl": 5,
+  "filePath": "src\\inprint\\inprint.ts",
+  "pos": 7560
+ },
+ {
+  "cpl": 24,
+  "filePath": "src\\inprint\\inprint.ts",
+  "pos": 7803
+ },
+ {
+  "cpl": 7,
+  "filePath": "src\\inprint\\inprint.ts",
+  "pos": 8008
+ },
+ {
+  "cpl": 11,
+  "filePath": "src\\inprint\\inprintTestFile.ts",
+  "pos": 98
+ },
+ {
+  "cpl": 12,
+  "filePath": "src\\inprint\\inprintTestFile.ts",
+  "pos": 470
+ },
+ {
+  "cpl": 13,
+  "filePath": "src\\inprint\\inprintTestFile.ts",
+  "pos": 681
+ },
+ {
+  "cpl": 14,
+  "filePath": "src\\inprint\\inprintTestFile.ts",
+  "pos": 730
+ },
+ {
+  "cpl": 15,
+  "filePath": "src\\inprint\\inprintTestFile.ts",
+  "pos": 765
+ },
+ {
+  "cpl": 154,
+  "filePath": "src\\ycplmon\\IntIdManager.ts",
+  "pos": 3999
+ },
+ {
+  "cpl": 156,
+  "filePath": "src\\ycplmon\\IntIdManager.ts",
+  "pos": 4260
+ },
+ {
+  "cpl": 20,
+  "filePath": "src\\massReplace.ts",
+  "pos": 1006
+ }
+]
