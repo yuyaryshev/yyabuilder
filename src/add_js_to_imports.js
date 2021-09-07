@@ -23,6 +23,8 @@ async function add_js_to_imports() {
         if (e?.exitCode !== 1) console.error(e);
         eslintOut = e.stdout;
     }
+    try {
+		
     const eslintResult = JSON.parse(eslintOut);
     for (const fileRecord of eslintResult) {
         const messages = fileRecord.messages.filter((m) => m.ruleId === "import/extensions");
@@ -36,11 +38,11 @@ async function add_js_to_imports() {
             try {
                 let newFileLine = fileLine;
                 const sep = fileLine.includes('"') ? '"' : fileLine.includes("'") ? "'" : fileLine.includes("`") ? "`" : "FAILED";
-                const splittedLine = fileLine.split('"');
+                const splittedLine = fileLine.split("'").join('"').split('"');
                 const importPath = splittedLine[splittedLine.length - 2];
 
                 const includer = dirname(fileRecord.filePath);
-                console.log({includer, importPath})
+                //console.log({cpl:"CODE00555000",includer, importPath})
                 const importFullPath = resolve(includer, importPath);
                 // importPath
                 // existsSync
@@ -61,7 +63,7 @@ async function add_js_to_imports() {
                 newFileLine = splittedLine.join('"');
                 fileLines[lineIndex - 1] = newFileLine;
             } catch (e) {
-                console.warn(`CODE00000000 Failed to add js extension to import:\n    ${fileLine}\n    at fileRecord.filePath:${lineIndex+1}\nBecause of exception:\n    ${e.stack}`)
+                console.warn(`CODE00000000 Failed to add js extension to import:\n    ${fileLine}\n    at ${fileRecord.filePath}:${lineIndex+1}\nBecause of exception:\n    ${e.stack}`)
             }
         }
         const newFileContents = fileLines.join("\n");
@@ -70,6 +72,7 @@ async function add_js_to_imports() {
         //        for (const message of messages) console.log(`CODE00980000`, { fileRecord, message, linesToFix: linesIndexesToFix });
     }
     //console.log(`CODE00990000 add_js_to_imports stdout`, eslintResult);
+	} catch(e) { console.error("CODE00993330", e);};
 }
 
 module.exports = { add_js_to_imports };

@@ -60,6 +60,6 @@ function cleanAll() {
     cleanDocs();
 }
 
-module.exports = { cleanEsm, cleanCjs, cleanTypes, cleanTs, cleanDocs, cleanAll };
+module.exports = { cleanEsm, cleanCjs, cleanTypes, cleanTs, cleanDocs, cleanFrontend, cleanAll };
 
 // && node mjs_import.test.mjs && echo mjs import is ok!
