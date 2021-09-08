@@ -16,7 +16,11 @@ import("shelljs-plugin-ssh");
 // @ts-ignore
 import shelljs_exec from "shelljs.exec";
 // @ts-ignore
-import shelljs0 from "shelljs-exec-proxy";
+//import shelljs0 from "shelljs-exec-proxy";
+
+// @ts-ignore
+import shelljs0 from "shelljs";
+
 //const shelljs from("shelljs");
 shelljs0.exec = shelljs_exec;
 

@@ -1,6 +1,6 @@
 {
     "name": "yyabuilder",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "keywords": [
         "yyabuilder",
         "babel",
@@ -34,14 +34,14 @@
         "precompile_full": "node bin/yb.js precompile & eslint src --fix --quiet",
         "republish": "npm run build && npx version-select && node bin/yb.js genprojmeta && npm publish && npm uninstall -g yyabuilder && npm i -g yyabuilder --legacy-peer-deps && yb --version",
         "republish_forced": "npm run build_lite && npx version-select && node bin/yb.js genprojmeta && npm publish && npm uninstall -g yyabuilder && npm i -g yyabuilder --legacy-peer-deps && yb --version",
-        "build": "npm run precompile_full & npm run clean && npm run build:cjs && npm run test",
-        "build_full": "npm run precompile_full & npm run clean && npm run build:esm && npm run build:cjs && npm run build:types && npm run lint && npm run test && npm run build:docs",
+        "build": "npm run precompile_full & npm run clean & npm run build:cjs && npm run test",
+        "build_full": "npm run precompile_full & npm run clean & npm run build:esm && npm run build:cjs && npm run build:types && npm run lint && npm run test && npm run build:docs",
         "build:ts": "npm run clean:ts && tsc",
         "build:docs": "api-extractor run --local && api-documenter markdown --input-folder temp --output-folder docs",
         "tsc": "npm run build:ts",
         "lint": "npx eslint . --ext .js,.jsx,.ts,.tsx",
         "clean:cjs": "node bin/yb.js clean_cjs",
-        "build:cjs": "npm run clean:cjs & babel src --config-file ./babel.cjs.config.cjs --out-dir lib/cjs --extensions \".ts,.tsx,.js,.jsx\" --source-maps ",
+        "build:cjs": "babel src --config-file ./babel.cjs.config.cjs --out-dir lib/cjs --extensions \".ts,.tsx,.js,.jsx\" --source-maps ",
         "watch:cjs": "npm run clean:cjs & babel src --config-file ./babel.cjs.config.cjs --out-dir lib/cjs --extensions \".ts,.tsx,.js,.jsx\" --source-maps -w",
         "clean:esm": "node bin/yb.js clean_esm",
         "build:esm": "npm run clean:esm && babel src --config-file ./babel.esm.config.cjs --out-dir lib/esm --extensions \".ts,.tsx,.js,.jsx\" --source-maps ",
@@ -54,11 +54,11 @@
         "deps": "echo Finding loops in .js requires... & del deps.png & madge dist -c -i deps.png && deps.png",
         "deps_all": "echo Generating full .js requires tree... & del deps.png & madge dist -i deps.png && deps.png",
         "deps_orphans": "echo Finding orphans .js requires... & del deps.png & madge dist --orphans -i deps.png && deps.png",
-        "clean": "node bin/yb.js clean_all && npm run clear:docs",
+        "clean": "build:cjs & node bin/yb.js clean_all & npm run clear:docs",
         "watch:test:cjs": "npm run build:cjs && jest --config=jest.config-cjs.cjs --passWithNoTests -w",
         "test:cjs": "npm run build:cjs && jest --config=jest.config-cjs.cjs --passWithNoTests",
         "test:ts": "jest --config=jest.config-ts.cjs --passWithNoTests",
-        "build_lite": "npm run precompile_full & npm run clean && npm run build:esm && npm run build:cjs && npm run build:types && npm run build:docs"
+        "build_lite": "npm run precompile_full & npm run clean & npm run build:esm && npm run build:cjs && npm run build:types && npm run build:docs"
     },
     "devDependencies": {
         "@babel/cli": "7.15.4",
