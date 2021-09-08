@@ -1,11 +1,11 @@
 import JSON5 from "json5";
-import globby from "globby";
 import { readFileSync, writeFileSync } from "fs";
 import { resolve } from "path";
 import { embeddedFeatures } from "./embeddedFeatures/index.js";
 import { defaultInprintOptions, InprintOptions } from "./InprintOptions.js";
 import { formatTypescript } from "./formatTypescript.js";
 import { EmbeddedFeature } from "./EmbeddedFeature.js";
+const globby = import("globby");
 
 export const inprint_prefix = "@" + "INPRINT";
 export const startPrefix = "_START";
@@ -204,7 +204,7 @@ inprint [--help [feature]]  - prints help for specifiec 'feature'. 'feature' can
 export async function inprint(options0?: InprintOptions | undefined) {
     const options: InprintOptions = { ...defaultInprintOptions, ...options0 };
     let processedCount = 0;
-    const paths = await globby(options.files);
+    const paths = (await globby).globbySync(options.files);
 
     for (const filePath of paths) {
         if (options.logging === "files") console.log(`CODE00000024 INPRINT ${filePath}`);

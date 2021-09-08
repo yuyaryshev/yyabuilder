@@ -7,9 +7,9 @@ import { cleanEsm, cleanCjs, cleanTypes, cleanTs, cleanDocs, cleanFrontend, clea
 import { genprojmeta } from "./genprojmeta.js";
 import { massReplace } from "./massReplace.js";
 import { add_js_to_imports } from "./add_js_to_imports.js";
-import {version} from "./projmeta";
-import {fix_cpls} from "./ycplmon";
-import {inprint} from "./inprint";
+import {version} from "./projmeta.js";
+import {fix_cpls} from "./ycplmon/index.js";
+import {inprint} from "./inprint/index.js";
 
 /**
  * Starts up console application
