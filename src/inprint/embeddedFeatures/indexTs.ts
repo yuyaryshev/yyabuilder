@@ -8,7 +8,7 @@ export const indexTsEmbeddedFeature: EmbeddedFeature = {
     keywords: ["index"],
     description: `Generates reexport for each file inside directory. 
 Use exclude:['name1','name2'] to exclude some files. 
-Use merge:[{name:'MERGE_NAME', suffix:'MERGE_SUFFIX'}] to merge exported consts with specified MERGE_SUFFIX as an array into one variable MERGE_NAME`,
+Use merge:[{name:'MERGE_NAME', suffix:'MERGE_SUFFIX', asObject:false}] to merge exported consts with specified MERGE_SUFFIX as an array into one variable MERGE_NAME`,
     func: inprintIndexTs,
     help: `// ${"@"}INPRINT_START {exclude:[""], merge:[{name:"embeddedFeatures:EmbeddedFeature[]", suffix:"EmbeddedFeature"}]}
 export * from "./indexTs.js";
@@ -21,12 +21,23 @@ export const embeddedFeatures: EmbeddedFeature[] = [indexTsEmbeddedFeature];
 
 const allowedExtensions = new Set(["js", "mjs", "cjs", "jsx", "ts", "tsx"]);
 
+export interface IndexTsMergeDefinition {
+    name: string;
+    suffix: string;
+    asObject?: boolean;
+}
+
 export function inprintIndexTs(paramsObject: any, options: InprintOptions) {
     if (!paramsObject.absolutePath.endsWith("/index.ts")) return undefined;
 
-    const excludes = new Set(["projmeta", ...(paramsObject?.excludes || []), ...(paramsObject?.exclude || []), ...(paramsObject?.excluding || [])]);
+    const excludes: Set<string> = new Set([
+        "projmeta",
+        ...(paramsObject?.excludes || []),
+        ...(paramsObject?.exclude || []),
+        ...(paramsObject?.excluding || []),
+    ]);
 
-    const merges = [...new Set([...(paramsObject?.merge || [])])];
+    const merges: IndexTsMergeDefinition[] = [...new Set([...(paramsObject?.merge || [])])];
 
     excludes.add("index");
     const baseParts = resolve(paramsObject.absolutePath.split("/").slice(0, -1).join("/"));
@@ -53,12 +64,12 @@ export function inprintIndexTs(paramsObject: any, options: InprintOptions) {
         const mergeVars = [];
         for (const nameWoExt of fileNames) {
             mergeLines.push(`import {${nameWoExt}${mergeDefinition.suffix}} from "./${nameWoExt}.js";`);
-            mergeVars.push(`${nameWoExt}${mergeDefinition.suffix}`);
+            mergeVars.push(`${mergeDefinition.asObject ? `${nameWoExt}:` : ""}${nameWoExt}${mergeDefinition.suffix}`);
         }
         mergeArrayBlocks.push(
             `
 ${mergeLines.join("\n")}
-export const ${mergeDefinition.name} = [${mergeVars.join(", ")}];
+export const ${mergeDefinition.name} = ${mergeDefinition.asObject ? "{" : "["}${mergeVars.join(", ")}${mergeDefinition.asObject ? "}" : "]"};
 `.trim(),
         );
     }

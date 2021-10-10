@@ -9,7 +9,7 @@ import { massReplace } from "./massReplace.js";
 import { add_js_to_imports } from "./add_js_to_imports.js";
 import {version} from "./projmeta.js";
 import {fix_cpls} from "./ycplmon/index.js";
-import {inprint} from "./inprint/index.js";
+import {inprint, inprintRunFromCmd} from "./inprint/index.js";
 
 /**
  * Starts up console application
@@ -116,7 +116,7 @@ export function startCli() {
         .command("inprint")
         .description("Executes inprint for src folder")
         .action(function inprint_cmd(targetPath, options, command) {
-            inprint();
+            inprintRunFromCmd();
         });
 
     program
@@ -132,7 +132,7 @@ export function startCli() {
         .action(function precompile_cmd(targetPath, options, command) {
             add_js_to_imports();
             fix_cpls();
-            inprint();
+            inprintRunFromCmd();
         });
 
     // YYA: Typescript wont work! Because it takes path from tsconfig.json location, so I can't start it with config file located in this project!

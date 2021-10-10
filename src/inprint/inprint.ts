@@ -1,6 +1,6 @@
 import JSON5 from "json5";
 import { readFileSync, writeFileSync } from "fs";
-import { resolve } from "path";
+import { resolve, basename, join } from "path";
 import { embeddedFeatures } from "./embeddedFeatures/index.js";
 import { defaultInprintOptions, InprintOptions } from "./InprintOptions.js";
 import { formatTypescript } from "./formatTypescript.js";
@@ -13,7 +13,7 @@ export const endPrefix = "_END";
 export const usageNotice = `
 USAGE:
 
-// ${inprint_prefix}_START {...any_json_params...}
+// ${inprint_prefix}_START [directive] {...any_json_params...}
 // Generated code will go here
 // ${inprint_prefix}_END
 `;
@@ -30,7 +30,7 @@ export const writeFileSyncIfChanged = (fileName: string, content: string) => {
     let current: string | undefined;
     try {
         current = readFileSync(fileName, "utf-8");
-    } catch (e) {}
+    } catch (e: any) {}
 
     if (current !== content) {
         writeFileSync(fileName, content, "utf-8");
@@ -71,7 +71,7 @@ export function handleFile(filePath: string, options: InprintOptions): boolean {
                 ...JSON5.parse(paramsStr),
             };
             parts.push({ header, params, middle, tail, newMiddle: "" });
-        } catch (e) {
+        } catch (e: any) {
             console.error(`CODE00000003 INPRINT_ERROR ${e.message} in ${filePath}`);
             return false;
         }
@@ -79,8 +79,8 @@ export function handleFile(filePath: string, options: InprintOptions): boolean {
 
     for (const part of parts) {
         try {
-            part.newMiddle = doInprint(part.params, options);
-        } catch (e) {
+            part.newMiddle = doInprint(part.params, options, part.middle);
+        } catch (e: any) {
             part.newMiddle = `// INPRINT_FAILED because of exception:\n${e.message || "NO_ERROR_MESSAGE"}\\n${e.stack || "NO_STACK_TRACE"}`
                 .split("\n")
                 .join("\n//     ");
@@ -95,27 +95,27 @@ export function handleFile(filePath: string, options: InprintOptions): boolean {
     return true;
 }
 
-export function callEmbeddedFeatures(params: any, options: InprintOptions): string | undefined {
+export function callEmbeddedFeatures(params: any, options: InprintOptions, oldBody: string): string | undefined {
     for (const embeddedFeature of embeddedFeatures) {
-        const r = embeddedFeature.func(params, options);
+        const r = embeddedFeature.func(params, options, oldBody);
         if (r) return r;
     }
     return undefined;
 }
 
-export function doInprint(params: any, options: InprintOptions): string {
+export function doInprint(params: any, options: InprintOptions, oldBody: string): string {
     if (options.embeddedFeatures === "first" || options.embeddedFeatures === true) {
-        const r = callEmbeddedFeatures(params, options);
+        const r = callEmbeddedFeatures(params, options, oldBody);
         if (r) return r;
     }
 
     if (options.inprint) {
-        const r = options.inprint(params, options);
+        const r = options.inprint(params, options, oldBody);
         if (r) return r;
     }
 
     if (options.embeddedFeatures === "last") {
-        const r = callEmbeddedFeatures(params, options);
+        const r = callEmbeddedFeatures(params, options, oldBody);
         if (r) return r;
     }
     return `// INPRINT_ERROR None of inprint functions returned a result. They all returned undefined!`;
@@ -160,11 +160,13 @@ inprint [--help [feature]]  - prints help for specifiec 'feature'. 'feature' can
                 optionsPath = process.argv[2];
                 options0 = require(optionsPath);
             }
-        } catch (e) {
-            console.error(`CODE00000004 INPRINT failed to load '${optionsPath}' because of exception:`);
-            console.error(e);
-            process.exit(1);
-            return;
+        } catch (e: any) {
+            if (e.code !== "ENOENT" && !e.message.includes("Cannot find module")) {
+                console.error(`CODE00000023 INPRINT failed to load '${optionsPath}' because of exception:`);
+                console.error(e);
+                process.exit(1);
+                return;
+            }
         }
 
     try {
@@ -172,9 +174,9 @@ inprint [--help [feature]]  - prints help for specifiec 'feature'. 'feature' can
             optionsPath = resolve(process.cwd(), "inprint.cjs");
             options0 = require(optionsPath);
         }
-    } catch (e) {
-        if (e.code !== "MODULE_NOT_FOUND" || e.message.split("'")[1] !== optionsPath) {
-            console.error(`CODE00000008 INPRINT failed to load '${optionsPath}' because of exception:`);
+    } catch (e: any) {
+        if (e.code !== "ENOENT" && !e.message.includes("Cannot find module")) {
+            console.error(`CODE00000006 INPRINT failed to load '${optionsPath}' because of exception:`);
             console.error(e);
             process.exit(1);
             return;
@@ -186,9 +188,9 @@ inprint [--help [feature]]  - prints help for specifiec 'feature'. 'feature' can
             optionsPath = resolve(process.cwd(), "inprint.js");
             options0 = require(optionsPath);
         }
-    } catch (e) {
-        if (e.code !== "MODULE_NOT_FOUND" || e.message.split("'")[1] !== optionsPath) {
-            console.error(`CODE00000023 INPRINT failed to load '${optionsPath}' because of exception:`);
+    } catch (e: any) {
+        if (e.code !== "ENOENT" && !e.message.includes("Cannot find module")) {
+            console.error(`CODE00000008 INPRINT failed to load '${optionsPath}' because of exception:`);
             console.error(e);
             process.exit(1);
             return;
@@ -198,6 +200,22 @@ inprint [--help [feature]]  - prints help for specifiec 'feature'. 'feature' can
     if (!options0) optionsPath = "<default options>";
     if (options0?.logging) console.log(`CODE00000005 INPRINT options from ${optionsPath}`);
 
+    let projectName;
+    if (!options0?.packageName && optionsPath)
+        try {
+            const bPath = basename(optionsPath);
+            const packageJsonPath = join(bPath, "package.json");
+            (options0 as any).packageName = JSON5.parse(readFileSync(packageJsonPath, "utf-8")).name;
+        } catch (e: any) {
+            if (e.code !== "ENOENT" && !e.message.includes("Cannot find module")) {
+                console.error(`CODE00000009 INPRINT failed to load '${optionsPath}' because of exception:`);
+                console.error(e);
+                process.exit(1);
+                return;
+            }
+        }
+
+    (options0 as any).optionsPath = optionsPath;
     inprint(options0).then();
 }
 

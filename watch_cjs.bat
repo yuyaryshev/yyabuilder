@@ -1,1 +1,1 @@
-npm run watch:cjs
+my_wins watch_cjs

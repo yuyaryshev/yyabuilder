@@ -2,87 +2,92 @@
  {
   "cpl": 155,
   "filePath": "src\\add_js_to_imports.ts",
-  "pos": 2305
+  "pos": 2538
  },
  {
   "cpl": 555000,
   "filePath": "src\\add_js_to_imports.ts",
-  "pos": 3296
+  "pos": 3537
  },
  {
   "cpl": 16,
   "filePath": "src\\add_js_to_imports.ts",
-  "pos": 3725
+  "pos": 3966
  },
  {
   "cpl": 17,
   "filePath": "src\\add_js_to_imports.ts",
-  "pos": 3908
+  "pos": 4149
  },
  {
   "cpl": 18,
   "filePath": "src\\add_js_to_imports.ts",
-  "pos": 4009
+  "pos": 4250
  },
  {
   "cpl": 990000,
   "filePath": "src\\add_js_to_imports.ts",
-  "pos": 4101
+  "pos": 4346
  },
  {
   "cpl": 993330,
   "filePath": "src\\add_js_to_imports.ts",
-  "pos": 4124
+  "pos": 4369
  },
  {
   "cpl": 1,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 1769
+  "pos": 1802
  },
  {
   "cpl": 2,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 2451
+  "pos": 2489
  },
  {
   "cpl": 3,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 4649
+  "pos": 4775
  },
  {
   "cpl": 10,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 5993
- },
- {
-  "cpl": 4,
-  "filePath": "src\\inprint\\inprint.ts",
-  "pos": 6445
- },
- {
-  "cpl": 8,
-  "filePath": "src\\inprint\\inprint.ts",
-  "pos": 6902
+  "pos": 6212
  },
  {
   "cpl": 23,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 7166
+  "pos": 6687
+ },
+ {
+  "cpl": 6,
+  "filePath": "src\\inprint\\inprint.ts",
+  "pos": 7141
+ },
+ {
+  "cpl": 8,
+  "filePath": "src\\inprint\\inprint.ts",
+  "pos": 7405
  },
  {
   "cpl": 5,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 7577
+  "pos": 7894
+ },
+ {
+  "cpl": 9,
+  "filePath": "src\\inprint\\inprint.ts",
+  "pos": 8495
  },
  {
   "cpl": 24,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 7820
+  "pos": 8738
  },
  {
   "cpl": 7,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 8025
+  "pos": 8943
  },
  {
   "cpl": 11,
@@ -120,6 +125,11 @@
   "pos": 1030
  },
  {
+  "cpl": 4,
+  "filePath": "src\\parseEslintOutput.ts",
+  "pos": 2952
+ },
+ {
   "cpl": 154,
   "filePath": "src\\ycplmon\\IntIdManager.ts",
   "pos": 3999
@@ -132,11 +142,11 @@
  {
   "cpl": 21,
   "filePath": "src\\ycplmon\\ycplmonLib.ts",
-  "pos": 3465
+  "pos": 3469
  },
  {
   "cpl": 22,
   "filePath": "src\\ycplmon\\ycplmonLib.ts",
-  "pos": 9207
+  "pos": 9219
  }
 ]

@@ -52,6 +52,15 @@ for (let k in tsconf.compilerOptions.paths) {
 
 let excludedModules = ["fs", "sql-prettier", "prettier", "express", "socket.io", "better-sqlite3", "sqlite3", "child_process"];
 
+let webpack_dev_proxy;
+try {
+	webpack_dev_proxy = require('./webpack_dev_proxy.cjs')?.webpack_dev_proxy;
+} catch(e) {
+	if(e && e.code !== "ENOENT") {
+		console.error(e);
+	}
+}
+
 module.exports = {
     // REMOVED ON 2020-13-11
     // node: {
@@ -65,6 +74,7 @@ module.exports = {
         static: {
             directory: path.join(__dirname, "./resources"),
         },
+        proxy: webpack_dev_proxy,
         hot: enableHotReloadInDevServerMode && true,
     },
     resolve: {

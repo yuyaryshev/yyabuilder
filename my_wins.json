@@ -2,7 +2,7 @@
     "x": 0,
     "wins": {
         "ide": { "app": true, "cmd": "D:\\ProgsReady\\IntellijIdeaUI\\bin\\idea64.exe" },
-        "watch_backend": {
+        "watch_cjs": {
             "cmd": "cls & npm run precompile & npm run watch:cjs",
             "no_run": false
         },

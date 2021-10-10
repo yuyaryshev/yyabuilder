@@ -1,7 +1,7 @@
 import { InprintHandler } from "./InprintHandler.js";
 
 export interface InprintOptions {
-    skipNodeModules: boolean;
+    skipNodeModules?: boolean;
     files: string | string[];
     logging: "short" | "files" | false;
     inprint?: InprintHandler | undefined;
@@ -9,6 +9,8 @@ export interface InprintOptions {
     prettierOpts?: any;
     forceProcessTermination?: boolean;
     appendJsInImports: boolean;
+    optionsPath?:string;
+    packageName?: string;
 }
 
 export const defaultInprintOptions = {

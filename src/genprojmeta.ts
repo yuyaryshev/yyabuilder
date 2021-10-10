@@ -23,7 +23,7 @@ export function genprojmeta(mode: "src" | "esm" | "cjs") {
                 : `export const version = '${version}';\nexport const packageName = '${name}';\n`;
         writeFileSyncIfChanged(targetFile, content);
         console.log(`${targetFile} = ${content.split("\n").join(" ").trim()} - created!`);
-    } catch (e) {
+    } catch (e:any) {
         console.error(`Failed to create ${targetFile}\n`, e);
     }
 }

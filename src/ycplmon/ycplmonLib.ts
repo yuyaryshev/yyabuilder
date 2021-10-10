@@ -67,7 +67,7 @@ export const fix_cpls = (settings0?: Settings | undefined) => {
         const f = JSON.parse(oldSavedCpls);
         for (const cplItem of f) oldCpl.set(cplItem.cpl, cplItem);
         console.log(`Reading cpls from ${cplJsonPath}`);
-    } catch (e) {
+    } catch (e:any) {
         if (e.code !== "ENOENT") console.error(`Failed to read cpls from ${cplJsonPath}`, e);
         oldCpl.clear();
     }
@@ -143,7 +143,7 @@ export const fix_cpls = (settings0?: Settings | undefined) => {
             }
 
             if (!readMode) code = newCodeParts.join("");
-        } catch (e) {
+        } catch (e:any) {
             console.error(filePath, " - error processing file ", e);
         }
         //=================== FIX CODExxxxxxxx end =============================
@@ -159,7 +159,7 @@ export const fix_cpls = (settings0?: Settings | undefined) => {
                 try {
                     writeFileSync(filePath, code, "utf-8");
                     if (settings.logEachFixedFile) console.log(`${filePath} - fixed ${poses!.size} cpls `);
-                } catch (e) {
+                } catch (e:any) {
                     console.error(`${filePath} - ERROR FAILED TO WRITE fix for ${poses!.size} cpls `, e);
                     try {
                         writeFileSync(filePath, oldCode, "utf-8");
