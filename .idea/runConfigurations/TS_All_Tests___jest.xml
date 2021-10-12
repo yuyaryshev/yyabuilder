@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="TS All Tests - jest" type="JavaScriptTestRunnerJest">
+    <config-file value="$PROJECT_DIR$/jest.config-ts.cjs" />
+    <node-interpreter value="project" />
+    <node-options value="-r source-map-support/register -r ./breaker_lib.cjs" />
+    <jest-package value="$PROJECT_DIR$/node_modules/jest" />
+    <working-dir value="$PROJECT_DIR$" />
+    <jest-options value="--detectOpenHandles" />
+    <envs />
+    <scope-kind value="ALL" />
+    <method v="2" />
+  </configuration>
+</component>
