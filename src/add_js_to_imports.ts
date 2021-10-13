@@ -12,16 +12,23 @@ const myPath = resolve(__dirname, `..`);
 // eslint src --config .eslintrc_js_extensions.cjs -f ./src/add_js_formatter_for_eslint.cjs
 // D:\b\Mine\GIT_Work\yyabuilder\.eslintrc_js_extensions.cjs
 
+const allJsExtensions = "ts,tsx,js,jsx,cjs,mjs";
+export function eslintBlobForAllJsExtensions(basePath:string) {
+    const r = `{${allJsExtensions.split(",").map(e=>`${basePath}/**/*.${e}`).join(",")}}`;
+    // const r = `${basePath}/**/*.{${allJsExtensions}`;
+    //console.log(`CODE00000025 eslintBlobForAllJsExtensions = ${r}`)
+    return r;
+}
 
 export function add_js_to_imports() {
     const formatterAbsPath = resolve(__dirname, "./add_js_formatter_for_eslint.cjs");
     const configAbsPath = resolve(__dirname, "../../src/eslintrc_js_extensions.cjs");
-    const args = ["src/**/*.{ts,tsx,js,jsx,cjs,mjs}", "--config", configAbsPath];
+    const args = [eslintBlobForAllJsExtensions("src"), "--config", configAbsPath];
     //console.log(`CODE00000155 add_js_to_imports args:\neslint`, args.join(" "));
     let eslintOut;
     try {
         //console.log("add_js_to_imports v3 started:", {"process.cwd()":process.cwd()});
-        const { stdout, stderr } = execaSync("eslint "+args.join(" "), args);
+        const { stdout, stderr } = execaSync("eslint", args);
         eslintOut = stdout;
     } catch (e:any) {
         if (e?.exitCode !== 1) console.error(e);

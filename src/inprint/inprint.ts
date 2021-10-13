@@ -1,6 +1,6 @@
 import JSON5 from "json5";
 import { readFileSync, writeFileSync } from "fs";
-import { resolve, basename, join } from "path";
+import { resolve, dirname, join } from "path";
 import { embeddedFeatures } from "./embeddedFeatures/index.js";
 import { defaultInprintOptions, InprintOptions } from "./InprintOptions.js";
 import { formatTypescript } from "./formatTypescript.js";
@@ -203,7 +203,7 @@ inprint [--help [feature]]  - prints help for specifiec 'feature'. 'feature' can
     let projectName;
     if (!options0?.packageName && optionsPath)
         try {
-            const bPath = basename(optionsPath);
+            const bPath = dirname(optionsPath);
             const packageJsonPath = join(bPath, "package.json");
             (options0 as any).packageName = JSON5.parse(readFileSync(packageJsonPath, "utf-8")).name;
         } catch (e: any) {

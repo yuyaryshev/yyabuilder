@@ -1,6 +1,6 @@
 {
     "name": "yyabuilder",
-    "version": "2.3.1",
+    "version": "2.3.5",
     "keywords": [
         "yyabuilder",
         "babel",
@@ -25,7 +25,7 @@
     },
     "license": "Unlicense",
     "publishConfig": {
-        "registry": "http://registry.npmjs.org"
+        "registry": "https://registry.npmjs.org"
     },
     "scripts": {
         "start": "node bin/yb.js",

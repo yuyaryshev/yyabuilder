@@ -1,93 +1,98 @@
 [
  {
+  "cpl": 25,
+  "filePath": "src\\add_js_to_imports.ts",
+  "pos": 1242
+ },
+ {
   "cpl": 155,
   "filePath": "src\\add_js_to_imports.ts",
-  "pos": 2538
+  "pos": 2866
  },
  {
   "cpl": 555000,
   "filePath": "src\\add_js_to_imports.ts",
-  "pos": 3537
+  "pos": 3865
  },
  {
   "cpl": 16,
   "filePath": "src\\add_js_to_imports.ts",
-  "pos": 3966
+  "pos": 4294
  },
  {
   "cpl": 17,
   "filePath": "src\\add_js_to_imports.ts",
-  "pos": 4149
+  "pos": 4477
  },
  {
   "cpl": 18,
   "filePath": "src\\add_js_to_imports.ts",
-  "pos": 4250
+  "pos": 4578
  },
  {
   "cpl": 990000,
   "filePath": "src\\add_js_to_imports.ts",
-  "pos": 4346
+  "pos": 4674
  },
  {
   "cpl": 993330,
   "filePath": "src\\add_js_to_imports.ts",
-  "pos": 4369
+  "pos": 4697
  },
  {
   "cpl": 1,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 1802
+  "pos": 1801
  },
  {
   "cpl": 2,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 2489
+  "pos": 2488
  },
  {
   "cpl": 3,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 4775
+  "pos": 4774
  },
  {
   "cpl": 10,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 6212
+  "pos": 6211
  },
  {
   "cpl": 23,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 6687
+  "pos": 6686
  },
  {
   "cpl": 6,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 7141
+  "pos": 7140
  },
  {
   "cpl": 8,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 7405
+  "pos": 7404
  },
  {
   "cpl": 5,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 7894
+  "pos": 7892
  },
  {
   "cpl": 9,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 8495
+  "pos": 8493
  },
  {
   "cpl": 24,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 8738
+  "pos": 8736
  },
  {
   "cpl": 7,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 8943
+  "pos": 8941
  },
  {
   "cpl": 11,

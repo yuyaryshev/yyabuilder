@@ -1,4 +1,4 @@
-//        ...require("JSON5").parse(require("fs").readFileSync("package.json", "utf-8"))?.prettier,
+//        ...require("json5").parse(require("fs").readFileSync("package.json", "utf-8"))?.prettier,
 
 let inprint_main;
 try {
@@ -13,5 +13,5 @@ module.exports = {
     inprint: inprint_main,
     embeddedFeatures: "first",
     forceProcessTermination: true,
-    prettierOpts: { filepath: __dirname, ...require("JSON5").parse(require("fs").readFileSync("package.json", "utf-8"))?.prettier, parser:"typescript"},
+    prettierOpts: { filepath: __dirname, ...require("json5").parse(require("fs").readFileSync("package.json", "utf-8"))?.prettier, parser:"typescript"},
 };
