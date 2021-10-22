@@ -1,157 +1,157 @@
 [
  {
   "cpl": 25,
-  "filePath": "src\\add_js_to_imports.ts",
+  "filePath": "src/add_js_to_imports.ts",
   "pos": 1242
  },
  {
   "cpl": 155,
-  "filePath": "src\\add_js_to_imports.ts",
+  "filePath": "src/add_js_to_imports.ts",
   "pos": 2866
  },
  {
   "cpl": 555000,
-  "filePath": "src\\add_js_to_imports.ts",
+  "filePath": "src/add_js_to_imports.ts",
   "pos": 3865
  },
  {
   "cpl": 16,
-  "filePath": "src\\add_js_to_imports.ts",
+  "filePath": "src/add_js_to_imports.ts",
   "pos": 4294
  },
  {
   "cpl": 17,
-  "filePath": "src\\add_js_to_imports.ts",
+  "filePath": "src/add_js_to_imports.ts",
   "pos": 4477
  },
  {
   "cpl": 18,
-  "filePath": "src\\add_js_to_imports.ts",
+  "filePath": "src/add_js_to_imports.ts",
   "pos": 4578
  },
  {
   "cpl": 990000,
-  "filePath": "src\\add_js_to_imports.ts",
+  "filePath": "src/add_js_to_imports.ts",
   "pos": 4674
  },
  {
   "cpl": 993330,
-  "filePath": "src\\add_js_to_imports.ts",
+  "filePath": "src/add_js_to_imports.ts",
   "pos": 4697
  },
  {
   "cpl": 1,
-  "filePath": "src\\inprint\\inprint.ts",
+  "filePath": "src/inprint/inprint.ts",
   "pos": 1801
  },
  {
   "cpl": 2,
-  "filePath": "src\\inprint\\inprint.ts",
+  "filePath": "src/inprint/inprint.ts",
   "pos": 2488
  },
  {
   "cpl": 3,
-  "filePath": "src\\inprint\\inprint.ts",
+  "filePath": "src/inprint/inprint.ts",
   "pos": 4774
  },
  {
   "cpl": 10,
-  "filePath": "src\\inprint\\inprint.ts",
+  "filePath": "src/inprint/inprint.ts",
   "pos": 6211
  },
  {
   "cpl": 23,
-  "filePath": "src\\inprint\\inprint.ts",
+  "filePath": "src/inprint/inprint.ts",
   "pos": 6686
  },
  {
   "cpl": 6,
-  "filePath": "src\\inprint\\inprint.ts",
+  "filePath": "src/inprint/inprint.ts",
   "pos": 7140
  },
  {
   "cpl": 8,
-  "filePath": "src\\inprint\\inprint.ts",
+  "filePath": "src/inprint/inprint.ts",
   "pos": 7404
  },
  {
   "cpl": 5,
-  "filePath": "src\\inprint\\inprint.ts",
+  "filePath": "src/inprint/inprint.ts",
   "pos": 7892
  },
  {
   "cpl": 9,
-  "filePath": "src\\inprint\\inprint.ts",
+  "filePath": "src/inprint/inprint.ts",
   "pos": 8493
  },
  {
   "cpl": 24,
-  "filePath": "src\\inprint\\inprint.ts",
+  "filePath": "src/inprint/inprint.ts",
   "pos": 8736
  },
  {
   "cpl": 7,
-  "filePath": "src\\inprint\\inprint.ts",
+  "filePath": "src/inprint/inprint.ts",
   "pos": 8941
  },
  {
   "cpl": 11,
-  "filePath": "src\\inprint\\inprintTestFile.ts",
+  "filePath": "src/inprint/inprintTestFile.ts",
   "pos": 96
  },
  {
   "cpl": 12,
-  "filePath": "src\\inprint\\inprintTestFile.ts",
+  "filePath": "src/inprint/inprintTestFile.ts",
   "pos": 454
  },
  {
   "cpl": 13,
-  "filePath": "src\\inprint\\inprintTestFile.ts",
+  "filePath": "src/inprint/inprintTestFile.ts",
   "pos": 657
  },
  {
   "cpl": 14,
-  "filePath": "src\\inprint\\inprintTestFile.ts",
+  "filePath": "src/inprint/inprintTestFile.ts",
   "pos": 706
  },
  {
   "cpl": 15,
-  "filePath": "src\\inprint\\inprintTestFile.ts",
+  "filePath": "src/inprint/inprintTestFile.ts",
   "pos": 741
  },
  {
   "cpl": 19,
-  "filePath": "src\\massReplace.ts",
+  "filePath": "src/massReplace.ts",
   "pos": 612
  },
  {
   "cpl": 20,
-  "filePath": "src\\massReplace.ts",
+  "filePath": "src/massReplace.ts",
   "pos": 1030
  },
  {
   "cpl": 4,
-  "filePath": "src\\parseEslintOutput.ts",
+  "filePath": "src/parseEslintOutput.ts",
   "pos": 2952
  },
  {
   "cpl": 154,
-  "filePath": "src\\ycplmon\\IntIdManager.ts",
+  "filePath": "src/ycplmon/IntIdManager.ts",
   "pos": 3999
  },
  {
   "cpl": 156,
-  "filePath": "src\\ycplmon\\IntIdManager.ts",
+  "filePath": "src/ycplmon/IntIdManager.ts",
   "pos": 4260
  },
  {
   "cpl": 21,
-  "filePath": "src\\ycplmon\\ycplmonLib.ts",
+  "filePath": "src/ycplmon/ycplmonLib.ts",
   "pos": 3469
  },
  {
   "cpl": 22,
-  "filePath": "src\\ycplmon\\ycplmonLib.ts",
+  "filePath": "src/ycplmon/ycplmonLib.ts",
   "pos": 9219
  }
 ]
