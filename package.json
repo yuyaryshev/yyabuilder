@@ -1,6 +1,6 @@
 {
     "name": "yyabuilder",
-    "version": "2.3.5",
+    "version": "2.4.0",
     "keywords": [
         "yyabuilder",
         "babel",
@@ -77,6 +77,7 @@
         "@microsoft/api-extractor": "^7.18.13",
         "@types/chai": "^4.2.22",
         "@types/mocha": "^9.0.0",
+        "@types/shelljs": "^0.8.9",
         "@types/sinon": "^10.0.4",
         "@typescript-eslint/eslint-plugin": "^4.33.0",
         "@typescript-eslint/parser": "^4.33.0",
@@ -146,7 +147,8 @@
         "shelljs.exec": "^1.1.8",
         "strip-color": "^0.1.0",
         "ts-json-schema-generator": "^0.95.0",
-        "typescript": "^4.4.3"
+        "typescript": "^4.4.3",
+        "yyabuilder": "^2.4.0"
     },
     "private": false,
     "bin": {
