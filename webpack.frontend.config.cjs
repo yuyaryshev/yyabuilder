@@ -87,6 +87,7 @@ module.exports = {
             util: false,
             assert: false,
             stream: false,
+			events: false,
             //            crypto: require.resolve("crypto-browserify"),
             //            fs:null,
         },
