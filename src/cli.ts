@@ -15,7 +15,7 @@ import { inprint, inprintRunFromCmd } from "./inprint/index.js";
 import { getDirectoryHash } from "./get-directory-hash.js";
 import { bold, gray, green, red, yellow } from "chalk";
 
-const defaultExclude = [".idea", ".git", "node_modules", "cpl.json", "published.json"];
+const defaultExclude = [".idea", ".git", "node_modules", "cpl.json", "published.json","*.test.ts","*.test.js"];
 
 /**
  * Starts up console application
