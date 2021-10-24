@@ -1,5 +1,8 @@
 module.exports = {
     policy: "ytslib_policy",
-    exclude: [] // ignore specified directories and files during policy enforcement
-    // policy options here
-}
+    options: {
+        // policy options here
+        excludePackageJsonKeys: ["scripts", "devDependencies"],
+        exclude: [], // ignore specified directories and files during policy enforcement
+    },
+};

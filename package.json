@@ -8,6 +8,7 @@
         "bundler"
     ],
     "description": "Settings and tools for building typescript projects",
+    "isApp": true,
     "author": "Yuri Yaryshev",
     "main": "lib/cjs/index.js",
     "module": "lib/esm/index.js",
