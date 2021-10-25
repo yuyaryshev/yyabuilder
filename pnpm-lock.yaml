@@ -22,7 +22,6 @@ specifiers:
   '@types/micromatch': ^4.0.2
   '@types/mocha': ^9.0.0
   '@types/node': ^16.7.13
-  '@types/shelljs': ^0.8.9
   '@types/sinon': ^10.0.4
   '@types/strip-color': ^0.1.0
   '@typescript-eslint/eslint-plugin': ^4.33.0
@@ -53,7 +52,7 @@ specifiers:
   json5: ^2.2.0
   micromatch: ^4.0.4
   mocha: ^9.1.2
-  modify-filepath: '*'
+  modify-filepath: D:\b\Mine\GIT_Work\modify-filepath
   prettier: ^2.3.2
   pretty-quick: ^3.1.1
   shelljs: ^0.8.4
@@ -119,8 +118,7 @@ devDependencies:
   '@microsoft/api-extractor': 7.18.16
   '@types/chai': 4.2.22
   '@types/mocha': 9.0.0
-  '@types/shelljs': 0.8.9
-  '@types/sinon': 10.0.4
+  '@types/sinon': 10.0.5
   '@typescript-eslint/eslint-plugin': 4.33.0_cc617358c89d3f38c52462f6d809db4c
   '@typescript-eslint/parser': 4.33.0_eslint@7.32.0+typescript@4.4.4
   babel-loader: 8.2.2_@babel+core@7.15.5
@@ -137,7 +135,7 @@ devDependencies:
   jest: 27.3.1
   jest-ts-webcompat-resolver: 1.0.0
   mocha: 9.1.3
-  modify-filepath: 1.1.1
+  modify-filepath: link:../modify-filepath
   pretty-quick: 3.1.1_prettier@2.3.2
   sinon: 11.1.2
   source-map-support: 0.5.20
@@ -810,7 +808,7 @@ packages:
       find-cache-dir: 2.1.0
       make-dir: 2.1.0
       pirates: 4.0.1
-      source-map-support: 0.5.20
+      source-map-support: 0.5.19
     dev: false
 
   /@babel/template/7.14.5:
@@ -841,7 +839,7 @@ packages:
       '@babel/helper-split-export-declaration': 7.14.5
       '@babel/parser': 7.14.6
       '@babel/types': 7.14.5
-      debug: 4.3.2
+      debug: 4.3.1
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -1195,7 +1193,6 @@ packages:
 
   /@nicolo-ribaudo/chokidar-2/2.1.8-no-fsevents.2:
     resolution: {integrity: sha512-Fb8WxUFOBQVl+CX4MWet5o7eCc6Pj04rXIwVKZ6h1NnqTo45eOQW6aWyhG25NIODvWFwTDMwBsYxrQ3imxpetg==}
-    requiresBuild: true
     dependencies:
       anymatch: 2.0.0
       async-each: 1.0.3
@@ -1345,13 +1342,6 @@ packages:
       '@types/node': 16.7.13
     dev: false
 
-  /@types/glob/7.2.0:
-    resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
-    dependencies:
-      '@types/minimatch': 3.0.5
-      '@types/node': 16.7.13
-    dev: true
-
   /@types/graceful-fs/4.1.5:
     resolution: {integrity: sha512-anKkLmZZ+xm4p8JWBf4hElkM4XR+EZeA2M9BAkkTldmcyDY4mbdIJnRghDJH3Ov5ooY7/UAoENtmdMSkaAd7Cw==}
     dependencies:
@@ -1417,15 +1407,8 @@ packages:
     resolution: {integrity: sha512-eI5Yrz3Qv4KPUa/nSIAi0h+qX0XyewOliug5F2QAtuRg6Kjg6jfmxe1GIwoIRhZspD1A0RP8ANrPwvEXXtRFog==}
     dev: true
 
-  /@types/shelljs/0.8.9:
-    resolution: {integrity: sha512-flVe1dvlrCyQJN/SGrnBxqHG+RzXrVKsmjD8WS/qYHpq5UPjfq7UWFBENP0ZuOl0g6OpAlL6iBoLSvKYUUmyQw==}
-    dependencies:
-      '@types/glob': 7.2.0
-      '@types/node': 16.7.13
-    dev: true
-
-  /@types/sinon/10.0.4:
-    resolution: {integrity: sha512-fOYjrxQv8zJsqOY6V6ecP4eZhQBxtY80X0er1VVnUIAIZo74jHm8e1vguG5Yt4Iv8W2Wr7TgibB8MfRe32k9pA==}
+  /@types/sinon/10.0.5:
+    resolution: {integrity: sha512-BrAUy0yq3n84XOykYGvGbDir9nBIYwQm2NdBNQT0DbtDLqh/5nMUsjz5XfwrefFNLPE9B6g8yLOZREpvw0J40A==}
     dependencies:
       '@sinonjs/fake-timers': 7.1.2
     dev: true
@@ -1954,7 +1937,7 @@ packages:
       lodash.debounce: 4.0.8
       lodash.isregexp: 4.0.1
       lodash.isstring: 4.0.1
-      source-map-support: 0.5.20
+      source-map-support: 0.5.19
       string-argv: 0.3.1
     transitivePeerDependencies:
       - supports-color
@@ -2486,7 +2469,6 @@ packages:
         optional: true
     dependencies:
       ms: 2.1.2
-    dev: true
 
   /debug/4.3.2:
     resolution: {integrity: sha512-mOp8wKcvj7XxC78zLgw/ZA+6TSgkoE2C/ienthhRD298T7UNwAg9diBpLRxC0mOezLl4B0xV7M0cCO6P/O0Xhw==}
@@ -3280,7 +3262,6 @@ packages:
     resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
-    requiresBuild: true
     optional: true
 
   /function-bind/1.1.1:
@@ -4916,10 +4897,6 @@ packages:
       yargs-unparser: 2.0.0
     dev: true
 
-  /modify-filepath/1.1.1:
-    resolution: {integrity: sha512-QEZUaSSn4DhA07Xv7QG2NW4ocHkPeFsZC3Ip31MKFamrC9m74FC5L2XAN4w3eNjmldpCaFphu/oUv8XrH1cFYg==}
-    dev: true
-
   /mri/1.1.6:
     resolution: {integrity: sha512-oi1b3MfbyGa7FJMP9GmLTttni5JoICpYBRlq+x5V16fZbLsnL9N3wFqqIm/nIG43FjUFkFh9Epzp/kzUGUnJxQ==}
     engines: {node: '>=4'}
@@ -5994,11 +5971,19 @@ packages:
     dev: false
     optional: true
 
+  /source-map-support/0.5.19:
+    resolution: {integrity: sha512-Wonm7zOCIJzBGQdB+thsPar0kYuCIzYvxZwlBa87yi/Mdjv7Tip2cyVbLj5o0cFPN4EVkuTwb3GDDyUx2DGnGw==}
+    dependencies:
+      buffer-from: 1.1.1
+      source-map: 0.6.1
+    dev: false
+
   /source-map-support/0.5.20:
     resolution: {integrity: sha512-n1lZZ8Ve4ksRqizaBQgxXDgKwttHDhyfQjA6YZZn8+AroHbsIz+JjwxQDxbp+7y5OYCI8t1Yk7etjD9CRd2hIw==}
     dependencies:
       buffer-from: 1.1.1
       source-map: 0.6.1
+    dev: true
 
   /source-map-url/0.4.1:
     resolution: {integrity: sha512-cPiFOTLUKvJFIg4SKVScy4ilPPW6rFgMgfuZJPNoDuMs3nC1HbMUycBoJw77xFIp6z1UJQJOfx6C9GMH80DiTw==}

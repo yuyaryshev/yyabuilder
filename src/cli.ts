@@ -1,6 +1,6 @@
-import {join, join as joinPath, resolve} from "path";
-import { writeJson, ensureFile, readJson } from 'fs-extra';
-import {readdir, stat} from 'node:fs/promises';
+import { join, join as joinPath, resolve } from "path";
+import { writeJson, ensureFile, readJson } from "fs-extra";
+import { readdir, stat } from "node:fs/promises";
 import { Command } from "commander";
 import { shelljs } from "./yshelljs.js";
 import { runBabelEsm, runBabelCjs, runBabelAll } from "./runBabel.js";
@@ -9,18 +9,13 @@ import { cleanEsm, cleanCjs, cleanTypes, cleanTs, cleanDocs, cleanFrontend, clea
 import { genprojmeta } from "./genprojmeta.js";
 import { massReplace } from "./massReplace.js";
 import { add_js_to_imports } from "./add_js_to_imports.js";
-import {version} from "./projmeta.js";
-import {fix_cpls} from "./ycplmon/index.js";
-import {inprint, inprintRunFromCmd} from "./inprint/index.js";
+import { version } from "./projmeta.js";
+import { fix_cpls } from "./ycplmon/index.js";
+import { inprint, inprintRunFromCmd } from "./inprint/index.js";
 import { getDirectoryHash } from "./get-directory-hash.js";
-import {bold, gray, green, red, yellow} from "chalk";
+import { bold, gray, green, red, yellow } from "chalk";
 
-const defaultExclude = [
-    '.idea',
-    '.git',
-    'node_modules',
-    'cpl.json',
-]
+const defaultExclude = [".idea", ".git", "node_modules", "cpl.json", "published.json","*.test.ts","*.test.js"];
 
 /**
  * Starts up console application
@@ -35,51 +30,51 @@ export function startCli() {
     // .option("--interval", "NOT USED - Interval in seconds before watch notification, default 10 seconds")
 
     program
-        .command('dir_hash [path]')
-        .description('Generate hash from directory contents')
+        .command("dir_hash [path]")
+        .description("Generate hash from directory contents")
         .action(async (path) => {
             const hash = await getDirectoryHash(path, {
                 exclude: defaultExclude,
-            })
+            });
 
             try {
-                const packageJson = await readJson(resolve('package.json'));
+                const packageJson = await readJson(resolve("package.json"));
                 const publishedContent = {
                     version: packageJson.version,
                     hash,
-                }
-                const publishedFile = resolve('published.json');
+                };
+                const publishedFile = resolve("published.json");
 
                 await ensureFile(publishedFile);
                 await writeJson(publishedFile, publishedContent, { spaces: 2 });
 
-                console.log(`Current publishe version: ${yellow(bold(packageJson.version))}`,)
-                console.log(`Current publishe hash: ${gray(hash)}`)
+                console.log(`Current publishe version: ${yellow(bold(packageJson.version))}`);
+                console.log(`Current publishe hash: ${gray(hash)}`);
             } catch (error) {
-                console.error('WEE-oww 🚒 \n', error);
+                console.error("WEE-oww 🚒 \n", error);
             }
-        })
+        });
 
     program
-        .command('commit-tag-push')
-        .description('')
+        .command("commit-tag-push")
+        .description("")
         .action(async () => {
             try {
-                const { version } = await readJson(resolve('package.json'));
+                const { version } = await readJson(resolve("package.json"));
                 shelljs.exec('git commit -m "republish"');
                 shelljs.exec(`git tag ${version}`);
-                shelljs.exec('git push');
+                shelljs.exec("git push");
             } catch (error) {
-                console.error('WEE-oww 🚒 \n', error.message);
+                console.error("WEE-oww 🚒 \n", error.message);
             }
-        })
+        });
 
     program
-        .command('makeSnapshot [path]')
-        .description('')
+        .command("makeSnapshot [path]")
+        .description("")
         .action(async (path) => {
             if (!path) {
-                path = shelljs.exec('npm config get local_packages_folder').stdout.trim();
+                path = shelljs.exec("npm config get local_packages_folder").stdout.trim();
             }
 
             const root = resolve(path);
@@ -91,39 +86,33 @@ export function startCli() {
                 const fileStat = await stat(filePath);
 
                 if (fileStat.isDirectory()) {
-                    const publishedFile = join(filePath, 'published.json');
+                    const publishedFile = join(filePath, "published.json");
 
                     try {
                         const published = await readJson(publishedFile);
-                        const packageJson = await readJson(join(filePath, 'package.json'));
+                        const packageJson = await readJson(join(filePath, "package.json"));
                         const currentHash = await getDirectoryHash(filePath, {
                             exclude: defaultExclude,
                         });
 
                         if (currentHash !== published.hash) {
-                            console.error(
-                                red('Published and current caches do not match for: '),
-                                filePath,
-                            );
+                            console.error(red("Published and current caches do not match for: "), filePath);
                             process.exit(1);
                         }
                         if (packageJson.version !== published.version) {
-                            console.error(
-                                red('Published and current versions do not match for: '),
-                                filePath,
-                            )
+                            console.error(red("Published and current versions do not match for: "), filePath);
                             process.exit(1);
                         }
 
                         res[packageJson.name] = published.version;
                     } catch (error) {
-                        console.error('WEE-oww 🚒 \n', error.message);
+                        console.error("WEE-oww 🚒 \n", error.message);
                     }
                 }
             }
 
             console.dir(res);
-        })
+        });
 
     program
         .command("genprojmeta")

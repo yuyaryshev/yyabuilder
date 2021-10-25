@@ -1,1 +1,1 @@
-require("inprint").run();
+require("yyabuilder").inprintRunFromCmd();
