@@ -14,8 +14,7 @@ import { fix_cpls } from "./ycplmon/index.js";
 import { inprint, inprintRunFromCmd } from "./inprint/index.js";
 import { getDirectoryHash } from "./get-directory-hash.js";
 import { bold, gray, green, red, yellow } from "chalk";
-
-const defaultExclude = [".idea", ".git", "node_modules", "cpl.json", "published.json","*.test.ts","*.test.js"];
+import { makeSnapshot } from "./make-snapshot";
 
 /**
  * Starts up console application
@@ -33,9 +32,7 @@ export function startCli() {
         .command("dir_hash [path]")
         .description("Generate hash from directory contents")
         .action(async (path) => {
-            const hash = await getDirectoryHash(path, {
-                exclude: defaultExclude,
-            });
+            const hash = await getDirectoryHash(path);
 
             try {
                 const packageJson = await readJson(resolve("package.json"));
@@ -51,9 +48,26 @@ export function startCli() {
                 console.log(`Current publishe version: ${yellow(bold(packageJson.version))}`);
                 console.log(`Current publishe hash: ${gray(hash)}`);
             } catch (error) {
-                console.error("WEE-oww 🚒 \n", error);
+                console.error("🚒", red(error.message));
             }
         });
+
+    program
+        .command('check-snapshot')
+        .description('')
+        .action(async () => {
+            try {
+                const current = await readJson(resolve( 'published.json'));
+                const hash = await getDirectoryHash(resolve('.'));
+
+                if (current.hash === hash) {
+                    console.info(green('Already ap-to-date'));
+                    process.exit(1)
+                }
+            } catch (error) {
+                console.error(error.message);
+            }
+        })
 
     program
         .command("commit-tag-push")
@@ -65,7 +79,7 @@ export function startCli() {
                 shelljs.exec(`git tag ${version}`);
                 shelljs.exec("git push");
             } catch (error) {
-                console.error("WEE-oww 🚒 \n", error.message);
+                console.error("🚒", red(error.message));
             }
         });
 
@@ -76,42 +90,13 @@ export function startCli() {
             if (!path) {
                 path = shelljs.exec("npm config get local_packages_folder").stdout.trim();
             }
+            const { ok, snapshot } = await makeSnapshot(path);
 
-            const root = resolve(path);
-            const files = await readdir(root);
-            const res: Record<string, string> = {};
-
-            for (const file of files) {
-                const filePath = join(root, file);
-                const fileStat = await stat(filePath);
-
-                if (fileStat.isDirectory()) {
-                    const publishedFile = join(filePath, "published.json");
-
-                    try {
-                        const published = await readJson(publishedFile);
-                        const packageJson = await readJson(join(filePath, "package.json"));
-                        const currentHash = await getDirectoryHash(filePath, {
-                            exclude: defaultExclude,
-                        });
-
-                        if (currentHash !== published.hash) {
-                            console.error(red("Published and current caches do not match for: "), filePath);
-                            process.exit(1);
-                        }
-                        if (packageJson.version !== published.version) {
-                            console.error(red("Published and current versions do not match for: "), filePath);
-                            process.exit(1);
-                        }
-
-                        res[packageJson.name] = published.version;
-                    } catch (error) {
-                        console.error("WEE-oww 🚒 \n", error.message);
-                    }
-                }
+            if (!ok) {
+                process.exit(1);
             }
 
-            console.dir(res);
+            console.dir(snapshot);
         });
 
     program
