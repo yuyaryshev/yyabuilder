@@ -2,6 +2,7 @@ import { join, resolve, isAbsolute } from 'node:path';
 import { readdir, stat } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import {cyan, bold, gray} from 'chalk';
+import { defaultExclude } from "./default-exclude";
 
 type Exclude = string[];
 
@@ -65,12 +66,16 @@ const getHashFromSead = (sead: string) => createHash('sha256').update(sead).dige
  */
 const makeHashedFileName = (fileName: string) => `${fileName.toLowerCase()}:${getHashFromSead(fileName)}`;
 
+const defaultOptions: HashingOptions = {
+    exclude: defaultExclude,
+}
+
 /**
  *
  * @param path -
  * @param exclude -
  */
-export const getDirectoryHash = async (path = '.' , { exclude }: HashingOptions) => {
+export const getDirectoryHash = async (path = '.' , { exclude } = defaultOptions ) => {
     if (!isAbsolute(path)) {
         path = resolve(path);
     }
