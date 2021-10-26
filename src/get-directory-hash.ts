@@ -3,6 +3,7 @@ import { readdir, stat } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import {cyan, bold, gray} from 'chalk';
 import { defaultExclude } from "./default-exclude";
+import {readFileSync} from "fs";
 
 type Exclude = string[];
 
@@ -64,7 +65,12 @@ const getHashFromSead = (sead: string) => createHash('sha256').update(sead).dige
  *
  * @param fileName -
  */
-const makeHashedFileName = (fileName: string) => `${fileName.toLowerCase()}:${getHashFromSead(fileName)}`;
+const getFileHash = (fileName: string) => {
+    const file = readFileSync(fileName, 'utf-8');
+    const hash = getHashFromSead(file);
+
+    return hash
+}
 
 const defaultOptions: HashingOptions = {
     exclude: defaultExclude,
@@ -86,7 +92,7 @@ export const getDirectoryHash = async (path = '.' , { exclude } = defaultOptions
 
     await traverseDirectory(path, {
         forEach(file) {
-            hashedFiles.push(makeHashedFileName(file));
+            hashedFiles.push(getFileHash(file));
         },
         forAll(files) {
             return files
