@@ -2,7 +2,7 @@ import { join, resolve } from "node:path";
 import { readdir, stat } from "node:fs/promises";
 import { readJson, existsSync } from "fs-extra";
 import { red, yellow, green } from "chalk";
-import { getDirectoryHash } from "./get-directory-hash";
+import { getDirectoryHash } from "./get-directory-hash.js";
 
 const isPackage = (path: string): boolean => existsSync(join(path, "package.json"));
 

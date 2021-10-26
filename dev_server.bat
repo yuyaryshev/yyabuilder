@@ -1,1 +1,1 @@
-npm run dev_server
+cls & npm run dev_server

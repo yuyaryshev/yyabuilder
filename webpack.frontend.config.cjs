@@ -8,6 +8,7 @@ const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin"
 const isDevelopment = process.env.NODE_ENV !== "production";
 const ReactRefreshTypeScript = require("react-refresh-typescript");
 const WorkerPlugin = require("worker-plugin");
+const NODE_ENV = "development";
 
 const pathes = (() => {
     const proj = path.resolve(__dirname);
@@ -24,7 +25,16 @@ const pathes = (() => {
     };
 })();
 
-const NODE_ENV = "development";
+function keepOnlyExistingPaths(obj) {
+	const r = {};
+	for(const k in obj) {
+		const p = obj[k];
+		if(fs.existsSync(p)) {
+			r[k] = p;
+		}
+	}
+	return r;	
+}
 
 let BUILD_DATE = new Date();
 BUILD_DATE.setTime(BUILD_DATE.getTime() + 3 * 60 * 60 * 1000);
@@ -42,7 +52,14 @@ let package_json;
 let manifest_json;
 
 package_json = JSON.parse(fs.readFileSync(path.resolve(pathes.root, "package.json"), { encoding: "utf-8" }));
-manifest_json = JSON.parse(fs.readFileSync(path.resolve(pathes.resources, "manifest.json"), { encoding: "utf-8" }));
+try{
+	manifest_json = JSON.parse(fs.readFileSync(path.resolve(pathes.resources, "manifest.json"), { encoding: "utf-8" }));
+} catch(e) {
+	if(e.code !== "ENOENT") {
+		throw e;
+	}
+}
+
 let tsconf = eval("(()=>(" + fs.readFileSync("tsconfig.json", "utf-8") + "))()");
 
 let moduleAliases = {};
@@ -204,9 +221,11 @@ module.exports = {
         new CleanWebpackPlugin(),
         //        new webpack.NamedModulesPlugin(), // REMOVED ON 2020-13-11
         new HtmlWebpackPlugin({
-            title: manifest_json.name,
-            template: "./resources/index.html",
-            favicon: "./resources/favicon.png",
+            title: manifest_json?.name || package_json.name || undefined,
+			...keepOnlyExistingPaths({
+				template: "./resources/index.html",
+				favicon: "./resources/favicon.png",
+			})
         }),
         //        ...(enableHotReloadInDevServerMode && isDevelopment && [new webpack.HotModuleReplacementPlugin()]|| []),
         ...((enableHotReloadInDevServerMode && isDevelopment && [new ReactRefreshWebpackPlugin()]) || []),

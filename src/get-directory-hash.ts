@@ -2,7 +2,7 @@ import { join, resolve, isAbsolute } from 'node:path';
 import { readdir, stat } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import {cyan, bold, gray} from 'chalk';
-import { defaultExclude } from "./default-exclude";
+import { defaultExclude } from "./default-exclude.js";
 import {readFileSync} from "fs";
 
 type Exclude = string[];

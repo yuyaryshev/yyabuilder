@@ -14,7 +14,7 @@ import { fix_cpls } from "./ycplmon/index.js";
 import { inprint, inprintRunFromCmd } from "./inprint/index.js";
 import { getDirectoryHash } from "./get-directory-hash.js";
 import { bold, gray, green, red, yellow } from "chalk";
-import { makeSnapshot } from "./make-snapshot";
+import { makeSnapshot } from "./make-snapshot.js";
 
 /**
  * Starts up console application
