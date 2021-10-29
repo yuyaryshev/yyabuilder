@@ -58,7 +58,7 @@ export const makeSnapshot = async (path: string) => {
                     console.log(green('👌 OK'));
                     console.log();
                 }
-            } catch (error) {
+            } catch (error: any) {
                 console.error("🚒", red(error.message));
                 console.log();
                 ok = false;

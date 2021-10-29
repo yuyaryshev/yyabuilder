@@ -57,67 +57,77 @@
  {
   "cpl": 10,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 6211
+  "pos": 6247
  },
  {
   "cpl": 23,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 6686
+  "pos": 6737
  },
  {
   "cpl": 6,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 7140
+  "pos": 7191
  },
  {
   "cpl": 8,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 7404
+  "pos": 7455
  },
  {
   "cpl": 5,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 7892
+  "pos": 7955
  },
  {
-  "cpl": 9,
+  "cpl": 26,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 8493
+  "pos": 8276
+ },
+ {
+  "cpl": 27,
+  "filePath": "src\\inprint\\inprint.ts",
+  "pos": 8554
+ },
+ {
+  "cpl": 28,
+  "filePath": "src\\inprint\\inprint.ts",
+  "pos": 9326
  },
  {
   "cpl": 24,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 8736
+  "pos": 9569
  },
  {
   "cpl": 7,
   "filePath": "src\\inprint\\inprint.ts",
-  "pos": 8941
+  "pos": 9774
  },
  {
   "cpl": 11,
   "filePath": "src\\inprint\\inprintTestFile.ts",
-  "pos": 96
+  "pos": 98
  },
  {
   "cpl": 12,
   "filePath": "src\\inprint\\inprintTestFile.ts",
-  "pos": 454
+  "pos": 470
  },
  {
   "cpl": 13,
   "filePath": "src\\inprint\\inprintTestFile.ts",
-  "pos": 657
+  "pos": 681
  },
  {
   "cpl": 14,
   "filePath": "src\\inprint\\inprintTestFile.ts",
-  "pos": 706
+  "pos": 730
  },
  {
   "cpl": 15,
   "filePath": "src\\inprint\\inprintTestFile.ts",
-  "pos": 741
+  "pos": 765
  },
  {
   "cpl": 19,

@@ -133,7 +133,7 @@ export function expectFeature(query0: string): EmbeddedFeature {
 // const testFilePath = `D:\\b\\Mine\\GIT_Work\\yatasks_one_api\\src\\inprintTestFile.ts`;
 // handleFile(testFilePath);
 
-export function inprintRunFromCmd(options0?: InprintOptions | undefined) {
+export function inprintRunFromCmd(options0?: Partial<InprintOptions> | undefined) {
     if (process.argv[2] === "--version" || process.argv[2] === "-v") {
         // @ts-ignore
         console.log(version);
@@ -154,20 +154,20 @@ inprint [--help [feature]]  - prints help for specifiec 'feature'. 'feature' can
     }
 
     let optionsPath: string | undefined = undefined;
-    if (process.argv[2])
-        try {
-            if (!options0) {
-                optionsPath = process.argv[2];
-                options0 = require(optionsPath);
-            }
-        } catch (e: any) {
-            if (e.code !== "ENOENT" && !e.message.includes("Cannot find module")) {
-                console.error(`CODE00000023 INPRINT failed to load '${optionsPath}' because of exception:`);
-                console.error(e);
-                process.exit(1);
-                return;
-            }
-        }
+    // if (process.argv[2])
+    //     try {
+    //         if (!options0) {
+    //             optionsPath = process.argv[2];
+    //             options0 = require(optionsPath);
+    //         }
+    //     } catch (e: any) {
+    //         if (e.code !== "ENOENT" && !e.message.includes("Cannot find module")) {
+    //             console.error(`CODE00000023 INPRINT failed to load '${optionsPath}' because of exception:`);
+    //             console.error(e);
+    //             process.exit(1);
+    //             return;
+    //         }
+    //     }
 
     try {
         if (!options0) {
@@ -201,25 +201,46 @@ inprint [--help [feature]]  - prints help for specifiec 'feature'. 'feature' can
     if (options0?.logging) console.log(`CODE00000005 INPRINT options from ${optionsPath}`);
 
     let projectName;
-    if (!options0?.packageName && optionsPath)
+    const bPath = optionsPath ? dirname(optionsPath) : undefined;
+    if (!options0?.packageName && bPath)
         try {
-            const bPath = dirname(optionsPath);
             const packageJsonPath = join(bPath, "package.json");
             (options0 as any).packageName = JSON5.parse(readFileSync(packageJsonPath, "utf-8")).name;
         } catch (e: any) {
             if (e.code !== "ENOENT" && !e.message.includes("Cannot find module")) {
-                console.error(`CODE00000009 INPRINT failed to load '${optionsPath}' because of exception:`);
+                console.error(`CODE00000026 INPRINT failed to load '${optionsPath}' because of exception:`);
                 console.error(e);
                 process.exit(1);
                 return;
             }
         }
 
-    (options0 as any).optionsPath = optionsPath;
-    inprint(options0).then();
+    let prettierOpts;
+    if (bPath) {
+        const prettierOptsPath = join(bPath, "prettier.config.cjs");
+        //console.log(`CODE00000027 Attempt to find prettier config at: ${prettierOptsPath}`);
+        try {
+            prettierOpts = require(prettierOptsPath);
+        } catch (e: any) {
+            if (e.code !== "ENOENT" && !e.message.includes("Cannot find module")) {
+                console.error(`CODE00000028 INPRINT failed to load '${prettierOptsPath}' because of exception:`);
+                console.error(e);
+                // process.exit(1);
+                return;
+            }
+        }
+    }
+
+    const options = options0 || ({} as Partial<InprintOptions>);
+
+    (options as any).optionsPath = optionsPath;
+    if (!options.prettierOpts) {
+        options.prettierOpts = prettierOpts;
+    }
+    inprint(options).then();
 }
 
-export async function inprint(options0?: InprintOptions | undefined) {
+export async function inprint(options0?: Partial<InprintOptions> | undefined) {
     const options: InprintOptions = { ...defaultInprintOptions, ...options0 };
     let processedCount = 0;
     const paths = (await globby).globbySync(options.files);

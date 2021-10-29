@@ -47,7 +47,7 @@ export function startCli() {
 
                 console.log(`Current publishe version: ${yellow(bold(packageJson.version))}`);
                 console.log(`Current publishe hash: ${gray(hash)}`);
-            } catch (error) {
+            } catch (error: any) {
                 console.error("🚒", red(error.message));
             }
         });
@@ -64,7 +64,7 @@ export function startCli() {
                     console.info(green('Already ap-to-date'));
                     process.exit(1)
                 }
-            } catch (error) {
+            } catch (error:any) {
                 console.error(error.message);
             }
         })
@@ -78,7 +78,7 @@ export function startCli() {
                 shelljs.exec('git commit -m "republish"');
                 shelljs.exec(`git tag ${version}`);
                 shelljs.exec("git push");
-            } catch (error) {
+            } catch (error:any) {
                 console.error("🚒", red(error.message));
             }
         });
