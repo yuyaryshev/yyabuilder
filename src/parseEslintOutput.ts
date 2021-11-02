@@ -98,6 +98,7 @@ export function parseEslintOutput(s: string): EslintResult {
     while (c.line < c.lines.length) {
         const item = readYEslintFinalMessage(c) || readYEslintFileRecord(c) || readEmptyLine(c);
         if (item === undefined) {
+            c.line++;
             const lineStr = c.lines[c.line] || "";
             if (!lineStr.includes("potentially fixable with") && !lineStr.endsWith(" errors")) {
                 throw new Error(`CODE00000004 Failed to parse line ${c.line} = "${lineStr}"`);
