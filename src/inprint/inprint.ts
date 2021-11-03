@@ -103,6 +103,7 @@ export function callEmbeddedFeatures(params: any, options: InprintOptions, oldBo
     return undefined;
 }
 
+const errorString = `// INPRINT_ERROR None of inprint functions returned a result. They all returned undefined!`;
 export function doInprint(params: any, options: InprintOptions, oldBody: string): string {
     if (options.embeddedFeatures === "first" || options.embeddedFeatures === true) {
         const r = callEmbeddedFeatures(params, options, oldBody);
@@ -118,7 +119,7 @@ export function doInprint(params: any, options: InprintOptions, oldBody: string)
         const r = callEmbeddedFeatures(params, options, oldBody);
         if (r) return r;
     }
-    return `// INPRINT_ERROR None of inprint functions returned a result. They all returned undefined!`;
+    return oldBody.startsWith(errorString) ? oldBody : errorString + "\n" + oldBody;
 }
 
 export function expectFeature(query0: string): EmbeddedFeature {
