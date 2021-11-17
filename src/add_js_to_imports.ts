@@ -3,9 +3,9 @@ import { shelljs } from "./yshelljs.js";
 import { printStd } from "./printStd.js";
 import { lstatSync, readFileSync } from "fs";
 import { writeFileSyncIfChanged } from "./writeFileSyncIfChanged.js";
-import {sync as execaSync} from "execa";
+import { sync as execaSync } from "execa";
 
-import {EslintResult, parseEslintOutput, YEslintFileRecord, YEslintMessage} from "./parseEslintOutput.js";
+import { EslintResult, parseEslintOutput, YEslintFileRecord, YEslintMessage } from "./parseEslintOutput.js";
 
 const myPath = resolve(__dirname, `..`);
 
@@ -13,8 +13,11 @@ const myPath = resolve(__dirname, `..`);
 // D:\b\Mine\GIT_Work\yyabuilder\.eslintrc_js_extensions.cjs
 
 const allJsExtensions = "ts,tsx,js,jsx,cjs,mjs";
-export function eslintBlobForAllJsExtensions(basePath:string) {
-    const r = `{${allJsExtensions.split(",").map(e=>`${basePath}/**/*.${e}`).join(",")}}`;
+export function eslintBlobForAllJsExtensions(basePath: string) {
+    const r = `{${allJsExtensions
+        .split(",")
+        .map((e) => `${basePath}/**/*.${e}`)
+        .join(",")}}`;
     // const r = `${basePath}/**/*.{${allJsExtensions}`;
     //console.log(`CODE00000025 eslintBlobForAllJsExtensions = ${r}`)
     return r;
@@ -30,17 +33,17 @@ export function add_js_to_imports() {
         //console.log("add_js_to_imports v3 started:", {"process.cwd()":process.cwd()});
         const { stdout, stderr } = execaSync("eslint", args);
         eslintOut = stdout;
-    } catch (e:any) {
+    } catch (e: any) {
         if (e?.exitCode !== 1) console.error(e);
         eslintOut = e.stdout;
     }
 
     try {
         //const eslintResult:EslintResult = JSON.parse(eslintOut);
-        const eslintResult:EslintResult = parseEslintOutput(eslintOut);
+        const eslintResult: EslintResult = parseEslintOutput(eslintOut);
 
         for (const fileRecord0 of eslintResult) {
-            const fileRecord:YEslintFileRecord = fileRecord0 as YEslintFileRecord;
+            const fileRecord: YEslintFileRecord = fileRecord0 as YEslintFileRecord;
             const messages = fileRecord.messages.filter((m: YEslintMessage) => m.ruleId === "import/extensions");
             if (!messages.length) continue;
             const linesIndexesToFix = messages.map((m: YEslintMessage) => m.line);
@@ -61,22 +64,24 @@ export function add_js_to_imports() {
                     // importPath
                     // existsSync
 
-                    let doneFixing = false;
-                    try {
-                        if (lstatSync(importFullPath).isDirectory()) {
-                            splittedLine[splittedLine.length - 2] = splittedLine[splittedLine.length - 2] + "/index.js";
-                            doneFixing = true;
+                    if (!splittedLine[splittedLine.length - 2].endsWith(".js")) {
+                        let doneFixing = false;
+                        try {
+                            if (lstatSync(importFullPath).isDirectory()) {
+                                splittedLine[splittedLine.length - 2] = splittedLine[splittedLine.length - 2] + "/index.js";
+                                doneFixing = true;
+                            }
+                        } catch (e: any) {
+                            doneFixing = false;
                         }
-                    } catch (e:any) {
-                        doneFixing = false;
-                    }
-                    if (!doneFixing) {
-                        splittedLine[splittedLine.length - 2] = splittedLine[splittedLine.length - 2] + ".js";
+                        if (!doneFixing) {
+                            splittedLine[splittedLine.length - 2] = splittedLine[splittedLine.length - 2] + ".js";
+                        }
                     }
 
                     newFileLine = splittedLine.join('"');
                     fileLines[lineIndex - 1] = newFileLine;
-                } catch (e:any) {
+                } catch (e: any) {
                     console.warn(
                         `CODE00000016 Failed to add js extension to import:\n    ${fileLine}\n    at ${fileRecord.filePath}:${
                             lineIndex + 1
@@ -90,7 +95,7 @@ export function add_js_to_imports() {
             //        for (const message of messages) console.log(`CODE00000018`, { fileRecord, message, linesToFix: linesIndexesToFix });
         }
         //console.log(`CODE00990000 add_js_to_imports stdout`, eslintResult);
-    } catch (e:any) {
+    } catch (e: any) {
         console.error("CODE00993330", e);
     }
 }
