@@ -112,22 +112,22 @@
  {
   "cpl": 12,
   "filePath": "src\\inprint\\inprintTestFile.ts",
-  "pos": 454
+  "pos": 1012
  },
  {
   "cpl": 13,
   "filePath": "src\\inprint\\inprintTestFile.ts",
-  "pos": 657
+  "pos": 1494
  },
  {
   "cpl": 14,
   "filePath": "src\\inprint\\inprintTestFile.ts",
-  "pos": 706
+  "pos": 1543
  },
  {
   "cpl": 15,
   "filePath": "src\\inprint\\inprintTestFile.ts",
-  "pos": 741
+  "pos": 1578
  },
  {
   "cpl": 19,
@@ -143,6 +143,11 @@
   "cpl": 4,
   "filePath": "src\\parseEslintOutput.ts",
   "pos": 3161
+ },
+ {
+  "cpl": 190,
+  "filePath": "src\\projectFolderTree.ts",
+  "pos": 1138
  },
  {
   "cpl": 154,
