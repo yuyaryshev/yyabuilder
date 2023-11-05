@@ -31,6 +31,10 @@ export function strPosConverter(s: string) {
     linesSE.push({ s: lineStart, e: l });
 
     function fromPos(pos: number) {
+        if (s[pos] === "\n" || s[pos] === "\r") {
+            pos++;
+        }
+
         let a = 0;
         let b = linesSE.length;
         while (true) {
@@ -40,7 +44,7 @@ export function strPosConverter(s: string) {
             else {
                 let r = row + 1;
                 let c = pos - linesSE[row].s + 1;
-                if (c === 0) c = 1;
+                if (c <= 0) c = 1;
                 return { r, c };
             }
         }
@@ -53,12 +57,20 @@ export function strPosConverter(s: string) {
 }
 
 export function strPosToRC(s: string, pos: number) {
+    if (s[pos] === "\n" || s[pos] === "\r") {
+        if (s[pos] === "\r" && s[pos + 1] === "\n") {
+            pos++;
+        }
+        pos++;
+    }
+
     const l = s.length;
     let r = 0;
     let lineStart = 0;
-    for (let p = 0; p <= pos; p++) {
+    for (let p = 0; p < pos; p++) {
         if (s[p] === "\r" && s[p + 1] === "\n") {
             lineStart = p + 2;
+            p++;
             r++;
         } else if (s[p] === "\n" || s[p] === "\r") {
             lineStart = p + 1;
@@ -67,7 +79,7 @@ export function strPosToRC(s: string, pos: number) {
     }
     r++;
     let c = pos - lineStart + 1;
-    if (c === 0) c = 1;
+    if (c <= 0) c = 1;
 
     return { r, c };
 }

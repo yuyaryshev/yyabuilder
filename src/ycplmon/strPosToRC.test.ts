@@ -53,13 +53,6 @@ describe("strPosToRC", () => {
         expect(strRCToPos(`dd\n123 abc \r\n  абв\t `, 2, 3)).to.equal(5);
     });
 
-    it("edgeCases-1", () => {
-        const s = "aaa\nbbb\nccc";
-        const r_etalon = slowButSimplePosToRc(s, 7);
-        const rr2 = strPosConverter(s).fromPos(7);
-        expect(rr2).to.deep.equal(r_etalon);
-    });
-
     it("edgeCases", () => {
         function testLine(s: string) {
             for (let i = 0; i < s.length; i++) {
@@ -94,5 +87,22 @@ describe("strPosToRC", () => {
         testLine("CODE" + "00000170");
         testLine("CODE" + "0000CODE000001710009");
         testLine("aaa\nbbb\nccc");
+        testLine("aaa\nbbb\nccc\n");
+        testLine("aaa\rbbb\rccc");
+        testLine("aaa\rbbb\rccc\r");
+        testLine("aaa\r\nbbb\r\nccc");
+        testLine("aaa\r\nbbb\r\nccc\r\n");
+
+        testLine("aaa\r\n\r\nccc\r\n");
+        testLine("aaa\r\n\r\n\r\n");
+        testLine("\r\n\r\n\r\n");
+
+        testLine("aaa\n\nccc\n");
+        testLine("aaa\n\n\n");
+        testLine("\n\n\n");
+
+        testLine("aaa\r\rccc\r");
+        testLine("aaa\r\r\r");
+        testLine("\r\r\r");
     });
 });
