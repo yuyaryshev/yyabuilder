@@ -15,6 +15,7 @@ import { inprint, inprintRunFromCmd } from "./inprint/index.js";
 import { getDirectoryHash } from "./get-directory-hash.js";
 import { bold, gray, green, red, yellow } from "chalk";
 import { makeSnapshot } from "./make-snapshot.js";
+import { readdirSync } from "fs";
 
 /**
  * Starts up console application
@@ -53,21 +54,21 @@ export function startCli() {
         });
 
     program
-        .command('check-snapshot')
-        .description('')
+        .command("check-snapshot")
+        .description("")
         .action(async () => {
             try {
-                const current = await readJson(resolve( 'published.json'));
-                const hash = await getDirectoryHash(resolve('.'));
+                const current = await readJson(resolve("published.json"));
+                const hash = await getDirectoryHash(resolve("."));
 
                 if (current.hash === hash) {
-                    console.info(green('Already ap-to-date'));
-                    process.exit(1)
+                    console.info(green("Already ap-to-date"));
+                    process.exit(1);
                 }
-            } catch (error:any) {
+            } catch (error: any) {
                 console.error(error.message);
             }
-        })
+        });
 
     program
         .command("commit-tag-push")
@@ -78,7 +79,7 @@ export function startCli() {
                 shelljs.exec('git commit -m "republish"');
                 shelljs.exec(`git tag ${version}`);
                 shelljs.exec("git push");
-            } catch (error:any) {
+            } catch (error: any) {
                 console.error("🚒", red(error.message));
             }
         });
@@ -189,6 +190,13 @@ export function startCli() {
         });
 
     program
+        .command("ws_fix_cpls")
+        .description("Makes all 'CODE????????' unique inside src folder")
+        .action(function fix_cpl_cmd(targetPath, options, command) {
+            fix_cpls({ workspaces: true, srcPath: "." } as any);
+        });
+
+    program
         .command("inprint")
         .description("Executes inprint for src folder")
         .action(function inprint_cmd(targetPath, options, command) {
@@ -196,8 +204,26 @@ export function startCli() {
         });
 
     program
+        .command("ws_inprint")
+        .description("Executes inprint all packages in a bundle")
+        .action(function inprint_cmd(targetPath, options, command) {
+            for (const packageName of readdirSync("./packages")) {
+                try {
+                    const optionsPath = resolve(joinPath(".","packages", packageName), "inprint.cjs");
+                    const options0 = require(optionsPath);
+                    try {
+                        console.log(optionsPath);
+                        inprintRunFromCmd(options0);
+                    } catch (e: any) {
+                        console.trace(`CODE53420000 Error in inprint ${optionsPath}:\n${e.message}\n${e.stack}`);
+                    }
+                } catch (e: any) {}
+            }
+        });
+
+    program
         .command("add_js_to_imports")
-        .description("Executes inprint for src folder")
+        .description("Executes add_js_to_imports for src folder")
         .action(function add_js_to_imports_cmd(targetPath, options, command) {
             add_js_to_imports();
         });

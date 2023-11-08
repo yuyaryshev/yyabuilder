@@ -203,18 +203,6 @@ inprint [--help [feature]]  - prints help for specifiec 'feature'. 'feature' can
 
     let projectName;
     const bPath = optionsPath ? dirname(optionsPath) : undefined;
-    if (!options0?.packageName && bPath)
-        try {
-            const packageJsonPath = join(bPath, "package.json");
-            (options0 as any).packageName = JSON5.parse(readFileSync(packageJsonPath, "utf-8")).name;
-        } catch (e: any) {
-            if (e.code !== "ENOENT" && !e.message.includes("Cannot find module")) {
-                console.error(`CODE00000026 INPRINT failed to load '${optionsPath}' because of exception:`);
-                console.error(e);
-                process.exit(1);
-                return;
-            }
-        }
 
     let prettierOpts;
     if (bPath) {
@@ -233,6 +221,18 @@ inprint [--help [feature]]  - prints help for specifiec 'feature'. 'feature' can
     }
 
     const options = options0 || ({} as Partial<InprintOptions>);
+    if (!options.packageName && bPath)
+        try {
+            const packageJsonPath = join(bPath, "package.json");
+            options.packageName = JSON5.parse(readFileSync(packageJsonPath, "utf-8")).name;
+        } catch (e: any) {
+            if (e.code !== "ENOENT" && !e.message.includes("Cannot find module")) {
+                console.error(`CODE00000026 INPRINT failed to load '${optionsPath}' because of exception:`);
+                console.error(e);
+                process.exit(1);
+                return;
+            }
+        }
 
     (options as any).optionsPath = optionsPath;
     if (!options.prettierOpts) {

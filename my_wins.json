@@ -1,7 +1,7 @@
 {
     "x": 0,
     "wins": {
-        "ide": { "app": true, "cmd": "D:\\ProgsReady\\IntellijIdeaUI\\bin\\idea64.exe" },
+
         "watch_cjs": {
             "cmd": "cls & npm run precompile & npm run watch:cjs",
             "no_run": false
@@ -12,7 +12,8 @@
             "no_run": true
         }
     },
-    "disabled": {
+    "disabled": {     
+		"ide": { "app": true, "cmd": "D:\\ProgsReady\\IntellijIdeaUI\\bin\\idea64.exe" },
         "dev_server": {
             "cmd": "cls & npm run dev_server",
             "no_run": false
