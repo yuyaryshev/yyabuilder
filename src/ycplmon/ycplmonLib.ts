@@ -8,6 +8,7 @@ import { readDirRecursive } from "./readDirRecursive.js";
 import { version } from "../projmeta.js";
 import { strPosConverter } from "./strPosToRC.js";
 import { createHash } from "node:crypto";
+import { StrRef } from "./strRef";
 
 export const ycplmonDefaultSettings: YcplmonSettings = {
     srcPath: "src",
@@ -36,6 +37,8 @@ interface FileCplData {
     cpls: Set<string>;
 }
 
+const tailMinLength = 100;
+
 const MAX_CPL_VALUE = 99999999;
 const CPL_VALUE_LEN = (MAX_CPL_VALUE + "").length;
 const CPL_FULL_LEN = CPL_VALUE_LEN + 4;
@@ -57,7 +60,8 @@ interface CplItem {
     fileLine: number;
     linePos: number;
     pos: number;
-    tail: string;
+    prefix: StrRef;
+    tail: StrRef;
     cplPosKey: string;
     anchorKey?: string;
 }
@@ -364,7 +368,7 @@ export interface CplMapItem {
 export type CplMap = Map<number, CplMapItem>;
 
 export interface SplittedCplFile {
-    prefixText: string;
+    fileContents: string;
     parts: CplItem[];
 }
 
@@ -392,21 +396,31 @@ export function makeAnchorKey(fileContents: string, cplItem: CplItem) {
 
 export function splitCplFile(filePath: string, fileContents: string): SplittedCplFile {
     const parts: CplItem[] = [];
-    let prefixText = "";
     let match;
 
-    const r0 = fileContents.split(splitByCplRegex);
+    const r0: StrRef[] = fileContents.split(splitByCplRegex).map((s) => {
+        return { s };
+    });
+
     const result: SplittedCplFile = {
-        prefixText: r0[0],
+        fileContents,
         parts: [],
     };
+    if (r0.length <= 1) {
+        return result;
+    }
 
-    let pos = result.prefixText.length;
+    let pos = r0[0].s.length;
     const posConv = strPosConverter(fileContents);
+    let nextPrefix = r0[0];
     for (let i = 1; i < r0.length; i += 2) {
         const { r, c } = posConv.fromPos(pos);
+
+        const prefix = nextPrefix;
+
         const p: CplItem = {
-            cpl: toNumCpl(r0[i]),
+            cpl: toNumCpl(r0[i].s),
+            prefix: r0[i - 1],
             tail: r0[i + 1],
             fileLine: r,
             linePos: c,
@@ -414,10 +428,13 @@ export function splitCplFile(filePath: string, fileContents: string): SplittedCp
             filePath,
             cplPosKey: makeCplPosKey(filePath, pos),
         };
+
+        // const strBefore = fileContents.slice(pos - 200, pos);
+        // const strAfter = fileContents.slice(pos, pos + CPL_FULL_LEN + 200);
         p.anchorKey = makeAnchorKey(fileContents, p);
 
-        pos += r0[i].length;
-        pos += r0[i + 1].length;
+        pos += r0[i].s.length;
+        pos += r0[i + 1].s.length;
         result.parts.push(p);
     }
 
@@ -425,9 +442,16 @@ export function splitCplFile(filePath: string, fileContents: string): SplittedCp
 }
 
 export function joinCplFile(splittedCplFile: SplittedCplFile): string {
-    const r0 = [splittedCplFile.prefixText];
+    if (!splittedCplFile.parts.length) {
+        return splittedCplFile.fileContents;
+    }
+    const r0 = [];
+    let i = 0;
     for (let part of splittedCplFile.parts) {
-        r0.push(fromNumCpl(part.cpl), part.tail);
+        if (i++ === 0) {
+            r0.push(part.prefix);
+        }
+        r0.push(fromNumCpl(part.cpl), part.tail.s);
     }
     return r0.join("");
 }

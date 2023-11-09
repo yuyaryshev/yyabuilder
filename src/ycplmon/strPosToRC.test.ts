@@ -98,7 +98,7 @@ describe("strPosToRC", () => {
         testLine("CODE" + "00000166 and CODE" + "00000167 codes.");
         testLine("CODE" + "00000168CODE" + "00000169");
         testLine("CODE" + "00000170");
-        testLine("CODE" + "0000CODE000001710009");
+        testLine("CODE" + "0000CODE000001580009");
         testLine("aaa\nbbb\nccc");
         testLine("aaa\nbbb\nccc\n");
         testLine("aaa\rbbb\rccc");
