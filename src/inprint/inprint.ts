@@ -119,7 +119,7 @@ export function doInprint(params: any, options: InprintOptions, oldBody: string)
         const r = callEmbeddedFeatures(params, options, oldBody);
         if (r) return r;
     }
-    return oldBody.startsWith(errorString) ? oldBody : errorString + "\n" + oldBody;
+    return oldBody.startsWith(errorString) ? oldBody.split(errorString).join("") : errorString + "\n" + oldBody;
 }
 
 export function expectFeature(query0: string): EmbeddedFeature {

@@ -8,7 +8,7 @@ import { readDirRecursive } from "./readDirRecursive.js";
 import { version } from "../projmeta.js";
 import { strPosConverter } from "./strPosToRC.js";
 import { createHash } from "node:crypto";
-import { StrRef } from "./strRef";
+import { StrRef } from "./strRef.js";
 
 export const ycplmonDefaultSettings: YcplmonSettings = {
     srcPath: "src",
@@ -85,7 +85,8 @@ export function cplItemsFromStr(s: string): CplItem[] {
                     linePos: +linePos,
                     pos,
                     cpl: +cplStr.substr(4, 8),
-                    tail: "",
+                    prefix: {s:""},
+                    tail: {s:""},
                     cplPosKey: makeCplPosKey(filePath, pos),
                     anchorKey,
                 };
