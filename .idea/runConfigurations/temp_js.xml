@@ -1,0 +1,5 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="temp.js" type="NodeJSConfigurationType" nameIsGenerated="true" path-to-js-file="cjs/temp.js" working-dir="$PROJECT_DIR$/lib">
+    <method v="2" />
+  </configuration>
+</component>
