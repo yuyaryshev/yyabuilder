@@ -1,5 +1,6 @@
 import { expect } from "chai";
 import { joinCplFile, splitCplFile } from "./ycplmonLib.js";
+import { readFileSync } from "fs";
 
 const genStrConst = "0123456789 ";
 function genStr(len: number): string {
@@ -89,6 +90,7 @@ describe("ycplmonLib.test.ts", () => {
             ],
         });
     });
+
     it("edgeCases", () => {
         function testLine(s: string) {
             try {
@@ -121,5 +123,9 @@ describe("ycplmonLib.test.ts", () => {
         testLine("CODE" + "00000168CODE" + "00000169");
         testLine("CODE" + "00000170");
         testLine("CODE" + "0000CODE000001570009");
+    });
+
+    it("file1_from_odb.txt", () => {
+        const fileContent = readFileSync(`./src/test_data/file1_from_odb.txt`, "utf-8");
     });
 });

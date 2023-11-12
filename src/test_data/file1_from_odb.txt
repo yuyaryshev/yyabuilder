@@ -1,0 +1,19 @@
+import fs from 'fs';
+
+export function foo() {
+    const ylogFunc = YLOG_on(100000000) && YLOG_func(ylogFile, "CODE00000000", `foo_foo`, undefined, { data: {} });
+    try{
+
+    ylogFunc && YLOG_step(
+        ylogFunc,
+        "CODE00001234",
+        "Message example",  {}
+    );
+
+    } catch (e: any) {
+        ylogFunc && YLOG_error(ylogFunc || ylogFile, e);
+        throw e;
+    } finally {
+        ylogFunc && YLOG_func_close(ylogFunc, "CODE00000774");
+    }
+}

@@ -1,4 +1,4 @@
-export interface SplitAndMarkDict {
+export interface RegExpDict {
     [key: string]: RegExp;
 }
 
@@ -14,7 +14,7 @@ export interface RegExpDictMatch {
     prefix: string;
 }
 
-export function* getRegExpDictMatches(s: string, dict: SplitAndMarkDict, p: number = 0): Generator<RegExpDictMatch, void, unknown> {
+export function* getRegExpDictMatches(s: string, dict: RegExpDict, p: number = 0): Generator<RegExpDictMatch, void, unknown> {
     while (p < s.length) {
         let leastIndex = s.length;
         let lastMatch: (RegExpExecArray & { t?: string }) | undefined = undefined;
@@ -51,7 +51,7 @@ export function* getRegExpDictMatches(s: string, dict: SplitAndMarkDict, p: numb
     }
 }
 
-export function splitAndMark(s: string, dict: SplitAndMarkDict): TaggedStringPart[] {
+export function splitAndMark(s: string, dict: RegExpDict): TaggedStringPart[] {
     const strLen = s.length;
     let parts = [];
 
