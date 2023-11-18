@@ -39,12 +39,12 @@ function linkThreeDllNodes(first: DLLNode | undefined, mid: DLLNode, last: DLLNo
     }
 }
 
-export class GenericTextTransformer<TTYPE extends string, PART_TYPE extends GenericTextTransformerPart<TTYPE, any>> {
+export class GenericTextTransformer<TTYPE extends string> {
     _size: number = 1;
-    public first: PART_TYPE;
-    public last: PART_TYPE;
+    public first: GenericTextTransformerPart<TTYPE>;
+    public last: GenericTextTransformerPart<TTYPE>;
     constructor(s: string, regExpDict?: RegExpDict) {
-        this.first = new GenericTextTransformerPart<TTYPE, any>(this, s) as any as PART_TYPE;
+        this.first = new GenericTextTransformerPart<TTYPE, any>(this, s);
         this.last = this.first;
         if (regExpDict) {
             this.first.splitBy(regExpDict);
@@ -55,7 +55,7 @@ export class GenericTextTransformer<TTYPE extends string, PART_TYPE extends Gene
         return this._size;
     }
 
-    __replaceWith(oldPart: PART_TYPE, newParts: PART_TYPE[]) {
+    __replaceWith(oldPart: GenericTextTransformerPart<TTYPE>, newParts: GenericTextTransformerPart<TTYPE>[]) {
         if (!newParts.length) {
             this.__remove(oldPart);
             return;
@@ -81,7 +81,7 @@ export class GenericTextTransformer<TTYPE extends string, PART_TYPE extends Gene
         this._size += newParts.length - 1;
     }
 
-    __addAfter(anchor: PART_TYPE, newParts: PART_TYPE[]) {
+    __addAfter(anchor: GenericTextTransformerPart<TTYPE>, newParts: GenericTextTransformerPart<TTYPE>[]) {
         let prevPart = anchor;
         for (let newPart of newParts) {
             prevPart.m_next = newPart;
@@ -94,7 +94,7 @@ export class GenericTextTransformer<TTYPE extends string, PART_TYPE extends Gene
         this._size += newParts.length;
     }
 
-    __addBefore(anchor: PART_TYPE, newParts: PART_TYPE[]) {
+    __addBefore(anchor: GenericTextTransformerPart<TTYPE>, newParts: GenericTextTransformerPart<TTYPE>[]) {
         let nextPart = anchor;
         for (let i = newParts.length - 1; i >= 0; i--) {
             const newPart = newParts[i];
@@ -108,7 +108,7 @@ export class GenericTextTransformer<TTYPE extends string, PART_TYPE extends Gene
         this._size += newParts.length;
     }
 
-    __remove(part: PART_TYPE) {
+    __remove(part: GenericTextTransformerPart<TTYPE>) {
         if (!part.m_prev && !part.m_next) {
             throw new Error(`CODE00000000 ERROR This part is detached from list!`);
         }
@@ -123,19 +123,19 @@ export class GenericTextTransformer<TTYPE extends string, PART_TYPE extends Gene
 
         if (part === this.first) {
             if (part === this.last) {
-                this.first = new GenericTextTransformerPart<TTYPE, any>(this, "") as any as PART_TYPE;
+                this.first = new GenericTextTransformerPart<TTYPE, any>(this, "");
                 this.last = this.first;
             } else {
                 if (!part.m_next) {
                     throw new Error(`CODE00000000 ERROR Internal error. This part should have 'm_next', because the list isn't empty!`);
                 }
-                this.first = part.m_next as PART_TYPE;
+                this.first = part.m_next;
             }
         } else if (part === this.last) {
             if (!part.m_prev) {
                 throw new Error(`CODE00000000 ERROR Internal error. This part should have 'm_next', because the list isn't empty!`);
             }
-            this.last = part.m_prev as PART_TYPE;
+            this.last = part.m_prev;
         }
 
         delete part.m_prev;
@@ -143,9 +143,9 @@ export class GenericTextTransformer<TTYPE extends string, PART_TYPE extends Gene
         this._size--;
     }
 
-    *iterate(tag?: string) {
+    *iterate(tag?: TTYPE) {
         let i = 0;
-        for (let current: PART_TYPE | undefined = this.first; current; current = current.m_next as PART_TYPE | undefined) {
+        for (let current: GenericTextTransformerPart<TTYPE> | undefined = this.first; current; current = current.m_next) {
             if (tag && current.t !== tag) {
                 continue;
             }
@@ -153,17 +153,17 @@ export class GenericTextTransformer<TTYPE extends string, PART_TYPE extends Gene
         }
     }
 
-    forEach(callback: (part: PART_TYPE, index: number) => void) {
+    forEach(callback: (part: GenericTextTransformerPart<TTYPE>, index: number) => void) {
         let i = 0;
-        for (let current: PART_TYPE | undefined = this.first; current; current = current.m_next as PART_TYPE | undefined) {
+        for (let current: GenericTextTransformerPart<TTYPE> | undefined = this.first; current; current = current.m_next) {
             callback(current, i++);
         }
     }
 
-    map<R>(callback: (part: PART_TYPE, index: number) => R): R[] {
+    map<R>(callback: (part: GenericTextTransformerPart<TTYPE>, index: number) => R): R[] {
         let i = 0;
         const r: R[] = [];
-        for (let current: PART_TYPE | undefined = this.first; current; current = current.m_next as PART_TYPE | undefined) {
+        for (let current: GenericTextTransformerPart<TTYPE> | undefined = this.first; current; current = current.m_next) {
             const rr = callback(current, i++);
             if (rr !== undefined) {
                 r.push(rr);
@@ -172,9 +172,13 @@ export class GenericTextTransformer<TTYPE extends string, PART_TYPE extends Gene
         return r;
     }
 
-    update(callback: (part: PART_TYPE, index: number) => string | boolean | undefined) {
+    update(callback: (part: GenericTextTransformerPart<TTYPE>, index: number) => string | boolean | undefined) {
         let i = 0;
-        for (let current: PART_TYPE | undefined = this.first; current; current = current.m_next as PART_TYPE | undefined) {
+        for (
+            let current: GenericTextTransformerPart<TTYPE> | undefined = this.first;
+            current;
+            current = current.m_next as GenericTextTransformerPart<TTYPE> | undefined
+        ) {
             const r = callback(current, i);
             current.replaceWith(r);
         }
@@ -195,28 +199,38 @@ export interface GenericTextTransformerPartPlain<TTYPE extends string> {
     captures?: string[];
 }
 
-export class GenericTextTransformerPart<TTYPE extends string, PART_TYPE extends GenericTextTransformerPart<any, any>> {
-    public m_next: GenericTextTransformerPart<TTYPE, PART_TYPE> | undefined;
-    public m_prev: GenericTextTransformerPart<TTYPE, PART_TYPE> | undefined;
+export class GenericTextTransformerPart<TTYPE extends string> {
+    public m_next: GenericTextTransformerPart<TTYPE> | undefined;
+    public m_prev: GenericTextTransformerPart<TTYPE> | undefined;
 
-    public readonly parent: GenericTextTransformer<TTYPE, PART_TYPE>;
+    public readonly parent: GenericTextTransformer<TTYPE>;
     public s: string;
     public t?: TTYPE;
-    public captures?: string[];
+    public captures: string[];
 
-    constructor(parent: GenericTextTransformer<TTYPE, PART_TYPE>, s: string, t?: TTYPE, captures?: string[]) {
+    constructor(parent: GenericTextTransformer<TTYPE>, s: string, t?: TTYPE, captures?: string[]) {
         this.parent = parent;
         this.s = s;
         if (t !== undefined) {
             this.t = t;
         }
-        if (captures !== undefined) {
-            this.captures = captures;
-        }
+        this.captures = captures || [];
+    }
+
+    getStr() {
+        return this.s;
+    }
+
+    getTag(): TTYPE | undefined {
+        return this.t;
+    }
+
+    getCaptures(): string[] {
+        return this.captures;
     }
 
     remove() {
-        this.parent.__remove(this as any as PART_TYPE);
+        this.parent.__remove(this);
     }
 
     clear() {
@@ -233,18 +247,16 @@ export class GenericTextTransformerPart<TTYPE extends string, PART_TYPE extends 
         }
     }
 
-    next(): GenericTextTransformerPart<TTYPE, PART_TYPE> | undefined {
+    next(): GenericTextTransformerPart<TTYPE> | undefined {
         return this.m_next;
     }
 
-    prev(): GenericTextTransformerPart<TTYPE, PART_TYPE> | undefined {
+    prev(): GenericTextTransformerPart<TTYPE> | undefined {
         return this.m_prev;
     }
 
-    findNext(
-        callBack: (part: GenericTextTransformerPart<TTYPE, PART_TYPE>) => boolean | undefined,
-    ): GenericTextTransformerPart<TTYPE, PART_TYPE> | undefined {
-        let current: GenericTextTransformerPart<TTYPE, PART_TYPE> | undefined = this;
+    findNext(callBack: (part: GenericTextTransformerPart<TTYPE>) => boolean | undefined): GenericTextTransformerPart<TTYPE> | undefined {
+        let current: GenericTextTransformerPart<TTYPE> | undefined = this;
         while (current) {
             current = current.m_next;
             if (current && callBack(current)) {
@@ -253,10 +265,8 @@ export class GenericTextTransformerPart<TTYPE extends string, PART_TYPE extends 
         }
     }
 
-    findPrev(
-        callBack: (part: GenericTextTransformerPart<TTYPE, PART_TYPE>) => boolean | undefined,
-    ): GenericTextTransformerPart<TTYPE, PART_TYPE> | undefined {
-        let current: GenericTextTransformerPart<TTYPE, PART_TYPE> | undefined = this;
+    findPrev(callBack: (part: GenericTextTransformerPart<TTYPE>) => boolean | undefined): GenericTextTransformerPart<TTYPE> | undefined {
+        let current: GenericTextTransformerPart<TTYPE> | undefined = this;
         while (current) {
             current = current.m_prev;
             if (current && callBack(current)) {
@@ -265,8 +275,8 @@ export class GenericTextTransformerPart<TTYPE extends string, PART_TYPE extends 
         }
     }
 
-    *nextParts(): Generator<GenericTextTransformerPart<TTYPE, PART_TYPE>> {
-        let current: GenericTextTransformerPart<TTYPE, PART_TYPE> | undefined = this;
+    *nextParts(): Generator<GenericTextTransformerPart<TTYPE>> {
+        let current: GenericTextTransformerPart<TTYPE> | undefined = this;
         while (current) {
             current = current.m_next;
             if (current) {
@@ -275,8 +285,8 @@ export class GenericTextTransformerPart<TTYPE extends string, PART_TYPE extends 
         }
     }
 
-    *prevParts(): Generator<GenericTextTransformerPart<TTYPE, PART_TYPE>> {
-        let current: GenericTextTransformerPart<TTYPE, PART_TYPE> | undefined = this;
+    *prevParts(): Generator<GenericTextTransformerPart<TTYPE>> {
+        let current: GenericTextTransformerPart<TTYPE> | undefined = this;
         while (current) {
             current = current.m_prev;
             if (current) {
@@ -291,7 +301,7 @@ export class GenericTextTransformerPart<TTYPE extends string, PART_TYPE extends 
     }
 
     splitBy(dict: RegExpDict, opts: SplitByOpts = {}) {
-        const newParts: PART_TYPE[] = [];
+        const newParts: GenericTextTransformerPart<TTYPE>[] = [];
 
         if (opts.firstOnly) {
             // TODO splitBy opts.firstOnly
@@ -310,23 +320,16 @@ export class GenericTextTransformerPart<TTYPE extends string, PART_TYPE extends 
 
         for (const item of getRegExpDictMatches(this.s, dict)) {
             if (item.prefix) {
-                newParts.push(new GenericTextTransformerPart<TTYPE, PART_TYPE>(this.parent, item.prefix) as any as PART_TYPE);
+                newParts.push(new GenericTextTransformerPart<TTYPE>(this.parent, item.prefix));
             }
 
             if (item.match) {
-                newParts.push(
-                    new GenericTextTransformerPart<TTYPE, PART_TYPE>(
-                        this.parent,
-                        item.match[0],
-                        item.match.t as TTYPE,
-                        item.match.slice(1),
-                    ) as any as PART_TYPE,
-                );
+                newParts.push(new GenericTextTransformerPart<TTYPE>(this.parent, item.match[0], item.match.t as TTYPE, item.match.slice(1)));
             }
         }
 
         this.s = "";
-        this.parent.__replaceWith(this as any as PART_TYPE, newParts);
+        this.parent.__replaceWith(this, newParts);
     }
 
     joinNext() {
