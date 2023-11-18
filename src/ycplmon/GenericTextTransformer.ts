@@ -143,6 +143,16 @@ export class GenericTextTransformer<TTYPE extends string, PART_TYPE extends Gene
         this._size--;
     }
 
+    *iterate(tag?: string) {
+        let i = 0;
+        for (let current: PART_TYPE | undefined = this.first; current; current = current.m_next as PART_TYPE | undefined) {
+            if (tag && current.t !== tag) {
+                continue;
+            }
+            yield current;
+        }
+    }
+
     forEach(callback: (part: PART_TYPE, index: number) => void) {
         let i = 0;
         for (let current: PART_TYPE | undefined = this.first; current; current = current.m_next as PART_TYPE | undefined) {

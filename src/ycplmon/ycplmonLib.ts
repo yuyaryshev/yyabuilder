@@ -9,6 +9,7 @@ import { version } from "../projmeta.js";
 import { strPosConverter } from "./strPosToRC.js";
 import { createHash } from "node:crypto";
 import { StrRef } from "./strRef.js";
+import {GenericTextTransformer} from "./GenericTextTransformer";
 
 export const ycplmonDefaultSettings: YcplmonSettings = {
     srcPath: "src",
@@ -395,7 +396,7 @@ export function makeAnchorKey(fileContents: string, cplItem: CplItem) {
     return anchorKey;
 }
 
-export function splitCplFile(filePath: string, fileContents: string): SplittedCplFile {
+export function splitCplFile(filePath: string, textTransformer: GenericTextTransformer<any, any>): SplittedCplFile {
     const parts: CplItem[] = [];
     let match;
 
