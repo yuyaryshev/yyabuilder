@@ -175,7 +175,7 @@ export function makeMissingScenarios(cplItems: CplItem[], refItems: Set<CplRefIt
         reportParts.push(reportPart);
     }
 
-    return reportParts.join("");
+    return reportParts.join("\n");
 }
 
 export function toLinuxPath(s: string): string {
@@ -474,7 +474,7 @@ export const fix_cpls = (settings0?: YcplmonSettings | undefined) => {
 
         const missingScenariosStr = (missingScenarios = makeMissingScenarios(cplItemsForSaving, cplRefs));
         if (writeFileIfChangedSync(missingScenariosPath, missingScenariosStr)) {
-            console.log(`Written missing scenarios to ${cplTablePath}`);
+            console.log(`Written missing scenarios to ${missingScenariosPath}`);
         }
     }
 
