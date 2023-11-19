@@ -23,3 +23,7 @@ export function foo() {
         ylogFunc && YLOG_func_close(ylogFunc, "CODE00000774");
     }
 }
+
+const scenarioFoo = [
+    "CODR00005555 ?"
+];

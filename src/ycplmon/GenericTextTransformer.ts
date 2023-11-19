@@ -54,11 +54,13 @@ function linkThreeDllNodes(first: DLLNode | undefined, mid: DLLNode, last: DLLNo
 }
 
 export class GenericTextTransformer<TTYPE extends string> {
+    public lengthVariation: number = 0; // Not used inside GenericTextTransformer
+
     private _size = 1;
     private _first;
     private _last;
     private _isChanged: boolean = false;
-    private _isLengthChanged: boolean = false;
+    private _lengthDifference: number = 0;
     public _touched: boolean = false;
     public readonly filePath: string;
     public readonly fullSourceString: string;
@@ -237,7 +239,7 @@ export class GenericTextTransformer<TTYPE extends string> {
         if (this._touched) {
             this._newContentString = this.map((p) => p.s).join("");
             this._isChanged = this._newContentString !== this.fullSourceString;
-            this._isLengthChanged = this._newContentString.length !== this.fullSourceString.length;
+            this._lengthDifference = this._newContentString.length - this.fullSourceString.length;
             this._touched = false;
         }
     }
@@ -288,9 +290,9 @@ export class GenericTextTransformer<TTYPE extends string> {
         return this._isChanged;
     }
 
-    isLengthChanged() {
+    lengthDifference() {
         this.__maybeRemakeStr();
-        return this._isLengthChanged;
+        return this._lengthDifference;
     }
 }
 

@@ -154,7 +154,7 @@ describe("tests_on_folders.test.ts", () => {
         deleteCplsDb();
         writeFiles([fileFromOdbContent]);
 
-        const { logicViolations, cplDb } = fix_cpls({ srcPath: testFolder, ...otherFixCplOpts });
+        const { logicViolations, cplDb, missingScenarios } = fix_cpls({ srcPath: testFolder, ...otherFixCplOpts });
         // expectDeepEqual(readFiles()[0], "tbd");
 
         expectDeepEqual(cplDb, {
@@ -162,25 +162,41 @@ describe("tests_on_folders.test.ts", () => {
                 posAddr: "file0.txt:9:10:234",
                 message: "Message example",
                 ylog_name: "YLOG_step",
+                refs: [],
             },
             "00005555": {
                 posAddr: "file0.txt:16:10:381",
+                message: "Message example",
+                severity: "E",
+                expectation: "1",
                 ylog_name: "YLOG_step",
                 cpl_comment: "1 E Message example",
-                message: "Message example",
-                expectation: "1",
-                severity: "E",
+                refs: ["file0.txt:28:6:632"],
             },
             "00000774": {
                 posAddr: "file0.txt:23:48:575",
                 ylog_name: "YLOG_func_close",
+                refs: [],
             },
             "00000775": {
                 posAddr: "file0.txt:4:65:113",
                 message: "foo_foo",
                 ylog_name: "YLOG_func",
                 hasYlogOn: 1,
+                refs: [],
             },
         });
+
+        expectDeepEqual(
+            missingScenarios.trim(),
+            (
+                `file0.txt\n` +
+                `    "CODR00001234    1 D Message example", // YLOG_step\n` +
+                `    "CODR00005555    1 E Message example", // YLOG_step\n` +
+                `    "CODR00000774    1 D ?", // YLOG_func_close\n` +
+                `    "CODR00000775    1 D foo_foo", // YLOG_func\n` +
+                ``
+            ).trim(),
+        );
     });
 });

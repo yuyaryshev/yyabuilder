@@ -6,10 +6,13 @@ import { jsCommentRegexp } from "./jsCommentRegexp.js";
 
 const ybRegExpDict = {
     cpl: /CODE(\d{8})/g,
+    cplref: /CODR(\d{8})/g,
     ylog_on: /(YLOG_on[(]\s*)(\d{9})(\s*[)])/g,
     inprint: /[@]INPRINT[_](START|END)(.*)\n/g,
     todo: /([/][/][ ]*TODO)(.*)\n/g,
 } as const;
+
+export const cplRefPrefix = "CODR";
 
 export type YbTt = keyof typeof ybRegExpDict;
 
@@ -26,6 +29,15 @@ export interface CplItem {
     ylog_name?: string;
     cpl_comment?: string;
     ylog_on_part?: GenericTextTransformerPart<YbTt>;
+
+    refs: CplRefItem[];
+}
+
+export interface CplRefItem {
+    refPart: GenericTextTransformerPart<YbTt>;
+    cplItem?: CplItem;
+
+    cpl: number;
 }
 
 export interface InprintItem2 {
@@ -62,6 +74,7 @@ export function parseCplMessageFromPart(cplPart: GenericTextTransformerPart<YbTt
 
 export class YbTextTransformer extends GenericTextTransformer<YbTt> {
     public cpls: CplItem[] = [];
+    public cplRefs: CplRefItem[] = [];
     public changedCpls: number = 0;
     public inprints: InprintItem2[] = [];
     public todos: TodoItem[] = [];
@@ -69,7 +82,7 @@ export class YbTextTransformer extends GenericTextTransformer<YbTt> {
     constructor(s: string, filePath: string) {
         super(s, filePath, ybRegExpDict);
 
-        for (const part of this.iterate("cpl")) {
+        for (const part of this.iterate()) {
             switch (part.getTag()) {
                 case undefined:
                     break;
@@ -81,9 +94,19 @@ export class YbTextTransformer extends GenericTextTransformer<YbTt> {
                         cpl: toNumCpl(part.getStr()),
                         cplPosKey: makeCplPosKey(filePath, part.getSourcePos()),
                         anchorKey: makeAnchorKey(textAround),
+                        refs: [],
                         ...parseCplMessageFromPart(part),
                     };
                     this.cpls.push(cplItem);
+                    break;
+                }
+
+                case "cplref": {
+                    const cplRefItem: CplRefItem = {
+                        refPart: part,
+                        cpl: toNumCpl(part.getStr()),
+                    };
+                    this.cplRefs.push(cplRefItem);
                     break;
                 }
 
