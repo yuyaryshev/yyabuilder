@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="odbp_bundle ws_fix_cpls" type="NodeJSConfigurationType" application-parameters="ws_fix_cpls" path-to-js-file="$PROJECT_DIR$/bin/yb.js" working-dir="$PROJECT_DIR$/../odbp_bundle">
+  <configuration default="false" name="odbp_bundle ws_fix_cpls" type="NodeJSConfigurationType" application-parameters="ws_fix_cpls" node-parameters="-r source-map-support/register" path-to-js-file="$PROJECT_DIR$/bin/yb.js" working-dir="$PROJECT_DIR$/../odbp_bundle">
     <method v="2" />
   </configuration>
 </component>

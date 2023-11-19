@@ -1,6 +1,6 @@
 {
     "name": "yyabuilder",
-    "version": "3.1.3",
+    "version": "3.2.0",
     "keywords": [
         "yyabuilder",
         "babel",
@@ -30,7 +30,7 @@
     },
     "scripts": {
         "start": "node bin/yb.js",
-        "test": "jest --config=jest.config-ts.cjs --passWithNoTests",
+        "test": "mocha ./lib/cjs/**/*.test.js",
         "precompile": "node bin/yb.js precompile & eslint src --fix --quiet",
         "precompile_full": "node bin/yb.js precompile & eslint src --fix --quiet",
         "republish": "npm run build && npx version-select && node bin/yb.js genprojmeta && npm publish && npm uninstall -g yyabuilder && npm i -g yyabuilder --legacy-peer-deps && yb --version",
@@ -85,6 +85,7 @@
         "babel-plugin-inline-replace-variables": "^1.3.1",
         "babel-plugin-module-resolver": "^4.1.0",
         "babel-watch": "^7.5.0",
+        "c8": "^8.0.1",
         "chai": "^4.3.4",
         "cross-env": "^7.0.3",
         "eslint": "^7.32.0",
@@ -100,6 +101,7 @@
         "json5": "^2.2.0",
         "mocha": "^9.1.2",
         "modify-filepath": "*",
+        "nyc": "^15.1.0",
         "prettier": "^2.4.1",
         "pretty-quick": "^3.1.1",
         "sinon": "^11.1.2",

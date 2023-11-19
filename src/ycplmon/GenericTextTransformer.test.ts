@@ -1,20 +1,20 @@
-import { expect } from "chai";
-import { splitAndMark, TaggedStringPart } from "./GenericTextTransformer_funcs";
-import { GenericTextTransformer } from "./GenericTextTransformer";
+import { expectDeepEqual } from "../expectDeepEqual.js";
+import { splitAndMark, TaggedStringPart } from "./GenericTextTransformer_funcs.js";
+import { GenericTextTransformer } from "./GenericTextTransformer.js";
 
 const splitByCplRegex = /(CODE\d{8})/g;
 
 const exampleString = `alksndmjasdfn CODE00000000 111 lksndlne CODE11111111 2222 slmsdlkmsdlkm MXCD666666 3333 FD55555XC 444`;
 const expectedR = () => [
-    { s: `alksndmjasdfn ` },
-    { s: `CODE00000000`, t: "cpl", captures: ["00000000"] },
-    { s: ` 111 lksndlne ` },
-    { s: `CODE11111111`, t: "cpl", captures: ["11111111"] },
-    { s: ` 2222 slmsdlkmsdlkm ` },
-    { s: `MXCD666666`, t: "mxcd", captures: ["666666"] },
-    { s: ` 3333 ` },
-    { s: `FD55555XC`, t: "fdxc", captures: ["55555"] },
-    { s: ` 444` },
+    { s: `alksndmjasdfn `, sourcePos: 0, captures: [] },
+    { s: `CODE00000000`, t: "cpl", sourcePos: 14, captures: ["00000000"] },
+    { s: ` 111 lksndlne `, sourcePos: 26, captures: [] },
+    { s: `CODE11111111`, t: "cpl", captures: ["11111111"], sourcePos: 40 },
+    { s: ` 2222 slmsdlkmsdlkm `, sourcePos: 52, captures: [] },
+    { s: `MXCD666666`, t: "mxcd", captures: ["666666"], sourcePos: 72 },
+    { s: ` 3333 `, sourcePos: 82, captures: [] },
+    { s: `FD55555XC`, t: "fdxc", captures: ["55555"], sourcePos: 88 },
+    { s: ` 444`, sourcePos: 97, captures: [] },
 ];
 
 describe("GenericTextTransformer.test.ts", () => {
@@ -24,7 +24,7 @@ describe("GenericTextTransformer.test.ts", () => {
             mxcd: /MXCD(\d{6})/g,
             fdxc: /FD(\d{5})XC/g,
         };
-        const tr = new GenericTextTransformer(exampleString, regExpDict);
+        const tr = new GenericTextTransformer(exampleString, "test.js", regExpDict);
 
         tr.forEach((part) => {
             if (part.t === "cpl") {
@@ -35,7 +35,7 @@ describe("GenericTextTransformer.test.ts", () => {
 
         const etalon: any = expectedR();
         etalon[1].nextCpl = "CODE" + "11111111";
-        expect(tr.toPlain()).to.deep.equal(etalon);
+        expectDeepEqual(tr.toPlain(), etalon);
     });
 
     it("simple split", () => {
@@ -44,8 +44,8 @@ describe("GenericTextTransformer.test.ts", () => {
             mxcd: /MXCD(\d{6})/g,
             fdxc: /FD(\d{5})XC/g,
         };
-        const tr = new GenericTextTransformer(exampleString, regExpDict);
+        const tr = new GenericTextTransformer(exampleString, "test.js", regExpDict);
 
-        expect(tr.toPlain()).to.deep.equal(expectedR());
+        expectDeepEqual(tr.toPlain(), expectedR());
     });
 });

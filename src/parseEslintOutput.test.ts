@@ -1,4 +1,4 @@
-import { expect } from "chai";
+import { expectDeepEqual } from "./expectDeepEqual.js";
 import { EslintResult, parseEslintOutput } from "./parseEslintOutput.js";
 
 describe("parseEslintOutput.test.ts", () => {
@@ -10,7 +10,7 @@ D:\\b\\Mine\\GIT_Work\\yyabuilder\\src\\inprint\\inprint.ts
 ✖ 1 problem (1 error, 0 warnings)
 `;
         const rrr = parseEslintOutput(exampleOutput);
-        expect(rrr).to.deep.equal([
+        expectDeepEqual(rrr, [
             {
                 filePath: "D:\\b\\Mine\\GIT_Work\\yyabuilder\\src\\inprint\\inprint.ts",
                 messages: [

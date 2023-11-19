@@ -1,55 +1,130 @@
-import { GenericTextTransformer, GenericTextTransformerPart } from "./GenericTextTransformer";
-import {toNumCpl} from "./ycplmonLib";
+import { GenericTextTransformer, GenericTextTransformerPart } from "./GenericTextTransformer.js";
+import { CPL_FULL_LEN, toNumCpl } from "./ycplmonLib.js";
+import { createHash } from "node:crypto";
+import { findQuotEnd, parseCplMessage, ParseCplMessageResult } from "./string_funcs.js";
 
 const ybRegExpDict = {
     cpl: /CODE(\d{8})/g,
-    ylog_on: /YLOG_on[(](\d{9})[)]/g,
-    inprint: /[@]INPRINT[_](START|END)/g,
+    ylog_on: /(YLOG_on[(]\s*)(\d{9})(\s*[)])/g,
+    inprint: /[@]INPRINT[_](START|END)(.*)\n/g,
+    todo: /([/][/][ ]*TODO)(.*)\n/g,
 } as const;
 
 export type YbTt = keyof typeof ybRegExpDict;
 
-interface CplItem2 {
-    cplMain:GenericTextTransformerPart<YbTt>;
+export interface CplItem {
+    cplPart: GenericTextTransformerPart<YbTt>;
 
     cpl: number;
-    filePath: string;
-    fileLine: number;
-    linePos: number;
-    pos: number;
-    prefix: StrRef;
-    tail: StrRef;
     cplPosKey: string;
-    anchorKey?: string;
+    anchorKey: string;
+
+    message?: string;
+    severity?: string;
+    ylog_name?: string;
+    ylog_on_part?: GenericTextTransformerPart<YbTt>;
 }
 
-export class YbTextTransformer extends GenericTextTransformer<YbTt, GenericTextTransformerPart<YbTt, any>> {
+export interface InprintItem2 {
+    startingPart: GenericTextTransformerPart<YbTt>;
+    middlePart: GenericTextTransformerPart<YbTt>;
+    endingPart: GenericTextTransformerPart<YbTt>;
+}
+
+export interface TodoItem {
+    part: GenericTextTransformerPart<YbTt>;
+}
+
+export type ParseCplMessageFromPartResult = ParseCplMessageResult & { ylog_on_part?: GenericTextTransformerPart<YbTt> };
+export function parseCplMessageFromPart(cplPart: GenericTextTransformerPart<YbTt>): ParseCplMessageFromPartResult {
+    const s = cplPart.parent.getFullSourceString();
+    const maxP = cplPart.next()?.next()?.getSourcePos() || s.length;
+    let p = cplPart.getSourcePos();
+    const r: ParseCplMessageFromPartResult = parseCplMessage(s, p, maxP);
+    if (r.ylog_name) {
+        const midPart = cplPart.prev();
+        if (midPart) {
+            const ylog_on_part = midPart.prev();
+            if (ylog_on_part && ylog_on_part.getTag() === "ylog_on") {
+                if (midPart.getStr().split("\n").length < 3 && midPart.getStr().split(";").length <= 1) {
+                    r.ylog_on_part = ylog_on_part;
+                }
+            }
+        }
+    }
+    return r;
+}
+
+export class YbTextTransformer extends GenericTextTransformer<YbTt> {
     public cpls: CplItem[] = [];
+    public changedCpls: number = 0;
+    public inprints: InprintItem2[] = [];
+    public todos: TodoItem[] = [];
 
-    constructor(s: string, filePath:string) {
-        super(s, ybRegExpDict);
+    constructor(s: string, filePath: string) {
+        super(s, filePath, ybRegExpDict);
 
-        for (const cplMain of this.iterate("cpl")) {
-            const cplItem: CplItem2 = {
-                cplMain,
-                cpl: toNumCpl(cplMain.getStr()),
-                filePath,
-                fileLine: cplMain.getLine(),
-                linePos: cplMain.getLinePos()
-                pos: cplMain.getPos(),
+        for (const part of this.iterate("cpl")) {
+            switch (part.getTag()) {
+                case undefined:
+                    break;
+                case "cpl": {
+                    const textAround = part.strAround(200);
 
-                // TODO fields below
-                prefix: StrRef;
-                tail: StrRef;
-                cplPosKey: string;
-                anchorKey?: string;
+                    const cplItem: CplItem = {
+                        cplPart: part,
+                        cpl: toNumCpl(part.getStr()),
+                        cplPosKey: makeCplPosKey(filePath, part.getSourcePos()),
+                        anchorKey: makeAnchorKey(textAround),
+                        ...parseCplMessageFromPart(part),
+                    };
+                    this.cpls.push(cplItem);
+                    break;
+                }
+
+                case "inprint": {
+                    if (part.getCaptures()[0] !== "START") {
+                        break;
+                    }
+                    const startingPart = part;
+                    const endingPart = startingPart.findNext("inprint");
+                    if (!endingPart) {
+                        console.warn(
+                            `CODE00000000 No ending for INPRINT block in ${filePath} line ${part.getSourceLine()}. This block will be ignored!`,
+                        );
+                        break;
+                    }
+                    const middlePart = startingPart.parent.joinPartsBetween(startingPart, endingPart);
+
+                    const inprintItem: InprintItem2 = { startingPart, middlePart, endingPart };
+                    this.inprints.push(inprintItem);
+                    break;
+                }
+
+                case "todo": {
+                    const todoItem: TodoItem = { part };
+                    this.todos.push(todoItem);
+                    break;
+                }
             }
         }
     }
 }
 
-export function newYbTextTransformer(s: string): YbTextTransformer {
-    const ybTextTransformer = new YbTextTransformer(s);
+export function newYbTextTransformer(s: string, filePath: string): YbTextTransformer {
+    return new YbTextTransformer(s, filePath);
+}
 
-    return ybTextTransformer;
+const splitByCplRegexNoCapture = /CODE\d{8}/g;
+const whitespaceRegex = /[ ][\t][\n][\r]/g;
+const ylogOnNoCapture = /YLOG_on[(]\s*\d{9}\s*[)]/g;
+
+export function makeAnchorKey(textAround: string) {
+    const anchor = textAround.split(splitByCplRegexNoCapture).join("").split(ylogOnNoCapture).join("").split(whitespaceRegex).join("");
+    const anchorKey = createHash("sha256").update(anchor).digest("hex");
+    return anchorKey;
+}
+
+export function makeCplPosKey(filePath: string, pos: number): string {
+    return `${filePath}:${pos}`;
 }

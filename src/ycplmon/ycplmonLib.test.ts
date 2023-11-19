@@ -1,6 +1,6 @@
-import { expect } from "chai";
-import { joinCplFile, splitCplFile } from "./ycplmonLib.js";
+import { expectDeepEqual } from "../expectDeepEqual.js";
 import { readFileSync } from "fs";
+import { newYbTextTransformer } from "./yb_types.js";
 
 const genStrConst = "0123456789 ";
 function genStr(len: number): string {
@@ -14,94 +14,52 @@ function genStr(len: number): string {
 describe("ycplmonLib.test.ts", () => {
     it("splitByCpl", () => {
         const s: string = "This is a sample text with CODE and CODE" + "0000 and CODE" + "00000158 and CODE" + "00000159 codes.";
-        const r = splitCplFile("unused.js", s);
-        expect(r).to.deep.equal({
-            fileContents: s,
-            parts: [
-                {
-                    anchorKey: "abf5fbab9e84eadd59667467d4f562f3f4ad313f3a561a54d1288b97c9e5172d",
-                    cpl: 158,
-                    cplPosKey: "unused.js:49",
-                    fileLine: 1,
-                    filePath: "unused.js",
-                    linePos: 50,
-                    pos: 49,
-                    prefix: "This is a sample text with CODE and CODE0000 and ",
-                    tail: " and ",
-                },
-                {
-                    cpl: 159,
-                    cplPosKey: "unused.js:66",
-                    fileLine: 1,
-                    filePath: "unused.js",
-                    linePos: 67,
-                    pos: 66,
-                    prefix: "",
-                    tail: " codes.",
-                    anchorKey: "abf5fbab9e84eadd59667467d4f562f3f4ad313f3a561a54d1288b97c9e5172d",
-                },
-            ],
+        const r0 = newYbTextTransformer(s, "unused.js");
+
+        expectDeepEqual(r0.toStrings(), [
+            "This is a sample text with CODE and CODE0000 and ",
+            "CODE" + "00000158",
+            " and ",
+            "CODE" + "00000159",
+            " codes.",
+        ]);
+
+        const r = r0.toPlain();
+
+        expectDeepEqual(r[0], {
+            sourcePos: 0,
+            s: "This is a sample text with CODE and CODE0000 and ",
+            captures: [],
         });
 
-        const r2 = joinCplFile(r);
-        expect(r2).to.deep.equal(s);
+        expectDeepEqual(r[1], {
+            sourcePos: 49,
+            s: "CODE00000158",
+            t: "cpl",
+            captures: ["00000158"],
+        });
+
+        const r2 = r0.toString();
+        expectDeepEqual(r2, s);
     });
 
     it("joinCplFile", () => {
         const s: string = "This is a sample text with CODE" + " and CODE" + "0000 and CODE" + "00000162 and CODE" + "00000163 codes.";
-        const r = joinCplFile(splitCplFile("unused.js", s));
-        expect(r).to.deep.equal(s);
-    });
-
-    it("splitByCpl - long", () => {
-        const s =
-            `This is a sample text with aaaaaaa ${genStr(400)} bbbbbbb CODE` +
-            ` and cccccc ${genStr(400)} ddddddd CODE` +
-            `0000 and eeeeeee ${genStr(400)} ffffff CODE` +
-            `00000164 and hhhhhh ${genStr(400)} ggggggg CODE` +
-            `00000165 kkkkkk ${genStr(400)} llllllll codes.`;
-
-        const r = splitCplFile("unused.js", s);
-        expect(r).to.deep.equal({
-            fileContents: s,
-            parts: [
-                {
-                    anchorKey: "d6e1039ddbf86a534564291a4f288ef0715b7c92f5350474b3a6dd90ea467360",
-                    cpl: 164,
-                    cplPosKey: "unused.js:1298",
-                    fileLine: 1,
-                    filePath: "unused.js",
-                    linePos: 1299,
-                    pos: 1298,
-                    prefix: "0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123 ggggggg ",
-                    tail: " and hhhhhh 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 ",
-                },
-                {
-                    anchorKey: "58c8f7c429dff75fbe22fb216e5fe39eef0d7d5cf830e502bb52cd7224dc8aac",
-                    cpl: 165,
-                    cplPosKey: "unused.js:1731",
-                    fileLine: 1,
-                    filePath: "unused.js",
-                    linePos: 1732,
-                    pos: 1731,
-                    prefix: " ggggggg CODE",
-                    tail: " kkkkkk 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123 llllllll codes.",
-                },
-            ],
-        });
+        const r = newYbTextTransformer(s, "unused.js").toString();
+        expectDeepEqual(r, s);
     });
 
     it("edgeCases", () => {
         function testLine(s: string) {
             try {
-                const r = joinCplFile(splitCplFile("unused.js", s));
-                expect(r).to.deep.equal(s);
+                const r = newYbTextTransformer(s, "unused.js").toString();
+                expectDeepEqual(r, s);
             } catch (e: any) {
                 console.log(`CODE00035200 Failed case:\n
                 it("failedEdgeCase", () => {
                     const s = ${JSON.stringify(s)};
-                    const r = joinCplFile(splitCplFile("unused.js", s));
-                    expect(r).to.deep.equal(s);
+                    const r = newYbTextTransformer(s, "unused.js").toString();
+                    expectDeepEqual(r,s);
                 });
                 `);
                 throw e;

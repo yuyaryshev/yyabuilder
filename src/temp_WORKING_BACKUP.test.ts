@@ -1,4 +1,4 @@
-import { expect } from "chai";
+import { expectDeepEqual } from "./expectDeepEqual.js";
 
 const splitByCplRegex = /(CODE\d{8})/g;
 
@@ -85,11 +85,11 @@ describe("temp.test.ts", () => {
         const r: TaggedStringPart[] = splitAndMark(exampleString, splitAndMarkDict);
 
         // Checking BR1, BR2,  BR3
-        expect(r).to.deep.equal(expectedR);
+        expectDeepEqual(r, expectedR);
 
         const regeneratedString = r.map((part) => part.s).join("");
 
         // Checking BR4
-        expect(regeneratedString).to.deep.equal(exampleString);
+        expectDeepEqual(regeneratedString, exampleString);
     });
 });

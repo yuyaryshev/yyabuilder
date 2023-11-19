@@ -29,8 +29,16 @@ export function someFunction() {
   // INPRINT_ERROR None of inprint functions returned a result. They all returned undefined!
   // INPRINT_ERROR None of inprint functions returned a result. They all returned undefined!
   // INPRINT_ERROR None of inprint functions returned a result. They all returned undefined!
+  // INPRINT_ERROR None of inprint functions returned a result. They all returned undefined!
+  // INPRINT_ERROR None of inprint functions returned a result. They all returned undefined!
+  // INPRINT_ERROR None of inprint functions returned a result. They all returned undefined!
+  // INPRINT_ERROR None of inprint functions returned a result. They all returned undefined!
   // @INPRINT_END
   // @INPRINT_START {n:1, test:"data2333"}
+  // INPRINT_ERROR None of inprint functions returned a result. They all returned undefined!
+  // INPRINT_ERROR None of inprint functions returned a result. They all returned undefined!
+  // INPRINT_ERROR None of inprint functions returned a result. They all returned undefined!
+  // INPRINT_ERROR None of inprint functions returned a result. They all returned undefined!
   // INPRINT_ERROR None of inprint functions returned a result. They all returned undefined!
   // INPRINT_ERROR None of inprint functions returned a result. They all returned undefined!
   // INPRINT_ERROR None of inprint functions returned a result. They all returned undefined!
@@ -60,6 +68,10 @@ export function someFunction() {
   // @INPRINT_END
   console.log(`CODE00000013 someFunction middle part`);
   // @INPRINT_START {n:2, test:"data3"}
+  // INPRINT_ERROR None of inprint functions returned a result. They all returned undefined!
+  // INPRINT_ERROR None of inprint functions returned a result. They all returned undefined!
+  // INPRINT_ERROR None of inprint functions returned a result. They all returned undefined!
+  // INPRINT_ERROR None of inprint functions returned a result. They all returned undefined!
   // INPRINT_ERROR None of inprint functions returned a result. They all returned undefined!
   // INPRINT_ERROR None of inprint functions returned a result. They all returned undefined!
   // INPRINT_ERROR None of inprint functions returned a result. They all returned undefined!

@@ -1,7 +1,7 @@
-import { expect } from "chai";
+import { expectDeepEqual } from "./expectDeepEqual.js";
 
 describe("temp.test.ts", () => {
     it("temp.test.ts", () => {
-        expect(1).to.deep.equal(1);
+        expectDeepEqual(1, 1);
     });
 });

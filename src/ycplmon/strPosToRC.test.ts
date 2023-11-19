@@ -1,49 +1,49 @@
-import { expect } from "chai";
+import { expectDeepEqual } from "../expectDeepEqual.js";
 import { slowButSimplePosToRc, strPosConverter, strPosToRC, strRCToPos } from "./strPosToRC.js";
 
 describe("strPosToRC", () => {
     it("strPosToRCConverter.linesSE", () => {
-        expect(strPosConverter(`\n123 abc \r\n  абв\t `).linesSE).to.deep.equal([0, 1, 11]);
-        expect(strPosConverter(`dd\n123 abc \r\n  абв\t `).linesSE).to.deep.equal([0, 3, 13]);
-        expect(strPosConverter(``).linesSE).to.deep.equal([0]);
-        expect(strPosConverter(`a`).linesSE).to.deep.equal([0]);
-        expect(strPosConverter(`\n`).linesSE).to.deep.equal([0, 1]);
-        expect(strPosConverter(`\n\n`).linesSE).to.deep.equal([0, 1, 2]);
-        expect(strPosConverter(`\r\n\r\r\n`).linesSE).to.deep.equal([0, 2, 3, 5]);
+        expectDeepEqual(strPosConverter(`\n123 abc \r\n  абв\t `).linesSE, [0, 1, 11]);
+        expectDeepEqual(strPosConverter(`dd\n123 abc \r\n  абв\t `).linesSE, [0, 3, 13]);
+        expectDeepEqual(strPosConverter(``).linesSE, [0]);
+        expectDeepEqual(strPosConverter(`a`).linesSE, [0]);
+        expectDeepEqual(strPosConverter(`\n`).linesSE, [0, 1]);
+        expectDeepEqual(strPosConverter(`\n\n`).linesSE, [0, 1, 2]);
+        expectDeepEqual(strPosConverter(`\r\n\r\r\n`).linesSE, [0, 2, 3, 5]);
     });
 
     it("strPosToRCConverter.fromPos", () => {
         const conv = strPosConverter(`dd\n123 abc \r\n  абв\t `);
-        expect(conv.fromPos(5)).to.deep.equal({ r: 2, c: 3 });
+        expectDeepEqual(conv.fromPos(5), { r: 2, c: 3 });
     });
 
     it("strPosToRCConverter.toPos", () => {
         const conv = strPosConverter(`dd\n123 abc \r\n  абв\t `);
-        expect(conv.toPos(2, 3)).to.deep.equal(5);
+        expectDeepEqual(conv.toPos(2, 3), 5);
     });
 
     it("strPosToRC", () => {
-        expect(strPosToRC(`dd\n123 abc \r\n  абв\t `, 5)).to.deep.equal({ r: 2, c: 3 });
+        expectDeepEqual(strPosToRC(`dd\n123 abc \r\n  абв\t `, 5), { r: 2, c: 3 });
     });
 
     it("strRCToPos", () => {
-        expect(strRCToPos(`dd\n123 abc \r\n  абв\t `, 2, 3)).to.equal(5);
+        expectDeepEqual(strRCToPos(`dd\n123 abc \r\n  абв\t `, 2, 3), 5);
     });
 
     it("edgeCase", () => {
         const s = "aaa\r\nbbb\r\nccc";
         const r_etalon = slowButSimplePosToRc(s, 10);
         const rr = strPosToRC(s, 10);
-        expect(rr).to.deep.equal(r_etalon);
+        expectDeepEqual(rr, r_etalon);
 
         const rr2 = strPosConverter(s).fromPos(10);
-        expect(rr2).to.deep.equal(r_etalon);
+        expectDeepEqual(rr2, r_etalon);
 
         const rr3 = strRCToPos(s, rr.r, rr.c);
-        expect(rr3).to.deep.equal(10);
+        expectDeepEqual(rr3, 10);
 
         const rr4 = strPosConverter(s).toPos(rr.r, rr.c);
-        expect(rr4).to.deep.equal(10);
+        expectDeepEqual(rr4, 10);
     });
 
     it("edgeCases", () => {
@@ -53,17 +53,17 @@ describe("strPosToRC", () => {
                 try {
                     const r_etalon = slowButSimplePosToRc(s, i);
                     const rr = strPosToRC(s, i);
-                    expect(rr).to.deep.equal(r_etalon);
+                    expectDeepEqual(rr, r_etalon);
 
                     const rr2 = strPosConverter(s).fromPos(i);
-                    expect(rr2).to.deep.equal(r_etalon);
+                    expectDeepEqual(rr2, r_etalon);
 
                     if (!isNl) {
                         const rr3 = strRCToPos(s, rr.r, rr.c);
-                        expect(rr3).to.deep.equal(i);
+                        expectDeepEqual(rr3, i);
 
                         const rr4 = strPosConverter(s).toPos(rr.r, rr.c);
-                        expect(rr4).to.deep.equal(i);
+                        expectDeepEqual(rr4, i);
                     }
                 } catch (e: any) {
                     console.log(
@@ -71,18 +71,18 @@ describe("strPosToRC", () => {
                         const s = ${JSON.stringify(s)};
                         const r_etalon = slowButSimplePosToRc(s, ${i});
                         const rr = strPosToRC(s, ${i});
-                        expect(rr).to.deep.equal(r_etalon);
+                        expectDeepEqual(rr,r_etalon);
                         
                         const rr2 = strPosConverter(s).fromPos(${i});
-                        expect(rr2).to.deep.equal(r_etalon);
+                        expectDeepEqual(rr2,r_etalon);
                     ` +
                             (!isNl
                                 ? `
                         const rr3 = strRCToPos(s, rr.r, rr.c);
-                        expect(rr3).to.deep.equal(${i});
+                        expectDeepEqual(rr3,${i});
 
                         const rr4 = strPosConverter(s).toPos(rr.r, rr.c);
-                        expect(rr4).to.deep.equal(${i});
+                        expectDeepEqual(rr4,${i});
                     `
                                 : ""),
                     );

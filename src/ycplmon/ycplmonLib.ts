@@ -9,7 +9,11 @@ import { version } from "../projmeta.js";
 import { strPosConverter } from "./strPosToRC.js";
 import { createHash } from "node:crypto";
 import { StrRef } from "./strRef.js";
-import {GenericTextTransformer} from "./GenericTextTransformer";
+import { GenericTextTransformer } from "./GenericTextTransformer.js";
+import { CplItem, makeCplPosKey, newYbTextTransformer, YbTextTransformer } from "./yb_types.js";
+
+export const cplTableFileName = "cpl.clsv";
+export const cplDbFileName = "cpl.json";
 
 export const ycplmonDefaultSettings: YcplmonSettings = {
     srcPath: "src",
@@ -24,6 +28,7 @@ export const ycplmonDefaultSettings: YcplmonSettings = {
 export interface YcplmonSettings {
     srcPath: string;
     logEachFixedFile?: boolean;
+    addTxtExtension?: boolean;
 
     // Not used
     dbPath: string;
@@ -42,7 +47,7 @@ const tailMinLength = 100;
 
 const MAX_CPL_VALUE = 99999999;
 const CPL_VALUE_LEN = (MAX_CPL_VALUE + "").length;
-const CPL_FULL_LEN = CPL_VALUE_LEN + 4;
+export const CPL_FULL_LEN = CPL_VALUE_LEN + 4;
 const CPL_PADDER = "00000000000000000000000000000000000000000000000000000000000000000000".substr(CPL_VALUE_LEN);
 const CPL_NUM_REGEXP = (() => {
     let r = "";
@@ -55,22 +60,25 @@ const cplStr = (cplValue: number): string => {
     return "CODE" + x.substr(x.length - CPL_VALUE_LEN);
 };
 
-interface CplItem {
+const cplStrWoCode = (cplValue: number): string => {
+    const x = CPL_PADDER + cplValue;
+    return x.substr(x.length - CPL_VALUE_LEN);
+};
+
+interface CplDbItem {
     cpl: number;
     filePath: string;
     fileLine: number;
     linePos: number;
     pos: number;
-    prefix: StrRef;
-    tail: StrRef;
     cplPosKey: string;
-    anchorKey?: string;
+    anchorKey: string;
 }
 
-export function cplItemsFromStr(s: string): CplItem[] {
+export function cplItemsFromStr(s: string): CplDbItem[] {
     try {
         const lines = s.split("\n");
-        const r: CplItem[] = [];
+        const r: CplDbItem[] = [];
         let lineIndex = 0;
         for (let line of lines) {
             if (!line.trim().length) {
@@ -78,22 +86,20 @@ export function cplItemsFromStr(s: string): CplItem[] {
             }
             try {
                 lineIndex++;
-                const [filePath, fileLine, linePos, pos0, cplStr, anchorKey] = line.split(":");
+                const [filePath, fileLine, linePos, pos0, cplStrWoCode, anchorKey] = line.split(":");
                 const pos = +pos0;
-                const cplItem: CplItem = {
+                const cplItem: CplDbItem = {
                     filePath,
                     fileLine: +fileLine,
                     linePos: +linePos,
                     pos,
-                    cpl: +cplStr.substr(4, 8),
-                    prefix: {s:""},
-                    tail: {s:""},
+                    cpl: +cplStrWoCode,
                     cplPosKey: makeCplPosKey(filePath, pos),
                     anchorKey,
                 };
                 r.push(cplItem);
             } catch (e: any) {
-                console.warn(`CODE00000009 Broken line ${lineIndex} in cpl.clsv`);
+                console.warn(`CODE00000009 Broken line ${lineIndex} in ${cplTableFileName}`);
             }
         }
         return r;
@@ -103,20 +109,72 @@ export function cplItemsFromStr(s: string): CplItem[] {
 }
 
 export function cplItemsToStr(cplItems: CplItem[]): string {
-    const lines = cplItems.map(
-        (cplItem) => `${cplItem.filePath}:${cplItem.fileLine}:${cplItem.linePos}:${cplItem.pos}:${cplStr(cplItem.cpl)}:${cplItem.anchorKey}\n`,
-    );
+    const lines = cplItems.map((cplItem) => `${cplItem.cplPart.getSourcePosAddrStr()}:${cplStrWoCode(cplItem.cpl)}:${cplItem.anchorKey}\n`);
     return lines.sort().join("");
 }
 
+export function makeCplDbContent(cplItems: CplItem[]): any {
+    const r: any = {};
+    for (const cplItem of cplItems) {
+        r[cplStrWoCode(cplItem.cpl)] = {
+            posAddr: cplItem.cplPart.getSourcePosAddrStr(),
+            message: cplItem.message,
+            severity: cplItem.severity,
+            ylog_name: cplItem.ylog_name,
+            hasYlogOn: cplItem.ylog_on_part ? 1 : undefined,
+        };
+        for (let k in r) {
+            if (r[k] === undefined) {
+                delete r[k];
+            }
+        }
+    }
+    return r;
+}
+
+export function toLinuxPath(s: string): string {
+    return s.split("\\").join("/");
+}
+
+export function fix_ylog_on(cplItem: CplItem) {
+    if (cplItem.ylog_on_part) {
+        const [prefix, numStr, suffix] = cplItem.ylog_on_part.captures;
+        const newNum = 100000000 + cplItem.cpl;
+        if (+numStr !== newNum) {
+            cplItem.ylog_on_part.replaceWith(`${prefix}${newNum}${suffix}`);
+        }
+    }
+}
+
 export const fix_cpls = (settings0?: YcplmonSettings | undefined) => {
+    const logicViolations: string[] = [];
     const settings = { ...ycplmonDefaultSettings, ...(settings0 || {}) };
     console.time(`Finished in`);
     const freeCplManager = new IntIdManager({ a: 1, b: 100000000 });
-    const cplJsonPath = resolvePath(settings.srcPath, "cpl.clsv");
+    let folderPath = toLinuxPath(resolvePath(settings.srcPath));
+    if (folderPath[folderPath.length - 1] !== "/") {
+        folderPath += "/";
+    }
+
+    const cplTablePath = resolvePath(settings.srcPath, cplTableFileName);
+    const cplDbPath = resolvePath(settings.srcPath, cplDbFileName);
+    function toRelPath(s: string) {
+        s = toLinuxPath(s);
+        if (s.startsWith(folderPath)) {
+            return s.slice(folderPath.length);
+        }
+        return s;
+    }
+
+    function toAbsPath(s: string) {
+        s = toLinuxPath(s);
+        return !s.startsWith(folderPath) ? folderPath + s : s;
+    }
+
     let oldSavedCpls;
 
     const cplMap: CplMap = new Map();
+    const dbByAnchorKey: Map<string, CplDbItem> = new Map();
 
     const upsertCplMap = (cpl: number): CplMapItem => {
         const r = cplMap.get(cpl);
@@ -128,26 +186,26 @@ export const fix_cpls = (settings0?: YcplmonSettings | undefined) => {
     };
 
     try {
-        oldSavedCpls = readFileSync(cplJsonPath, "utf-8");
+        oldSavedCpls = readFileSync(cplTablePath, "utf-8");
         const f = cplItemsFromStr(oldSavedCpls);
         for (const dbItem of f) {
             cplMap.set(dbItem.cpl, { dbItem, items: [] });
+            dbByAnchorKey.set(dbItem.anchorKey, dbItem);
+            freeCplManager.removeId(dbItem.cpl);
         }
-        console.log(`Reading cpls from ${cplJsonPath}`);
+        console.log(`Reading cpls from ${cplTablePath}`);
     } catch (e: any) {
-        if (e.code !== "ENOENT") console.error(`Failed to read cpls from ${cplJsonPath}`, e);
+        if (e.code !== "ENOENT") console.error(`Failed to read cpls from ${cplTablePath}`, e);
         cplMap.clear();
     }
 
-    const cplMapZeroItem: CplMapItem = { items: [] };
-    cplMap.set(0, cplMapZeroItem);
-
+    const zeroCpls: Set<CplItem> = new Set();
     const badCpls: Set<CplItem> = new Set();
 
     let totalFixes = 0;
 
     const fileFilter = (filePath: string): boolean => {
-        if (!filePath.endsWith(".ts") && !filePath.endsWith(".js")) return false;
+        if (!filePath.endsWith(".ts") && !filePath.endsWith(".js") && (!settings.addTxtExtension || !filePath.endsWith(".txt"))) return false;
         const posixPath = filePath.split("\\").join("/");
         const parts = filePath.split(pathSep);
         if (parts.includes("node_modules") || parts.includes(".git")) return false;
@@ -156,78 +214,49 @@ export const fix_cpls = (settings0?: YcplmonSettings | undefined) => {
             posixPath.includes("/lib/cjs/") ||
             posixPath.includes("/lib/ts/") ||
             posixPath.includes("/lib/esm/") ||
-            posixPath.includes("/lib/types/")
+            posixPath.includes("/lib/types/") ||
+            posixPath.endsWith(cplTableFileName) ||
+            posixPath.endsWith(cplDbFileName)
         ) {
             return false;
         }
         return true;
     };
 
-    const onFile = (filePath: string, readMode: boolean, itemPosKeys?: Set<string>): void => {
-        const startedFileWrite = false;
-
-        if (!readMode) {
-            if (!itemPosKeys) throw new Error(`CODE00000021 'poses' should be set if readMode === false`);
-            else totalFixes += itemPosKeys!.size;
-        }
-
-        const oldCode = readFileSync(filePath, "utf-8");
-        let code = oldCode;
-
-        //=================== FIX CODExxxxxxxx start =============================
-        try {
-            const splitted = splitCplFile(filePath, code);
-
-            if (readMode) {
-                for (let cplItem of splitted.parts) {
-                    const mapItem = upsertCplMap(cplItem.cpl);
-                    mapItem.items.push(cplItem);
-                    if (!cplItem.cpl || mapItem.items.length > 1) {
-                        if (mapItem.items.length == 2) {
-                            badCpls.add(mapItem.items[0]);
-                        }
-                        badCpls.add(cplItem);
-                    }
-                }
-            } else {
-                for (let cplItem of splitted.parts) {
-                    if (itemPosKeys!.has(cplItem.cplPosKey)) {
-                        cplItem.cpl = freeCplManager.newId();
-                        const mapItem = upsertCplMap(cplItem.cpl);
-                        mapItem.items.push(cplItem);
-                    }
-                }
-                code = joinCplFile(splitted);
+    const changeCplItemNum = (cplItem: CplItem) => {
+        let suggestedId = dbByAnchorKey.get(cplItem.anchorKey)?.cpl;
+        if (suggestedId) {
+            // Check that suggestedId is still free and if it's not than ignore it
+            const mapItem = cplMap.get(suggestedId);
+            if (mapItem?.items.length) {
+                suggestedId = undefined;
             }
-        } catch (e: any) {
-            console.error(filePath, " - error processing file ", e);
         }
-        //=================== FIX CODExxxxxxxx end =============================
 
-        if (!readMode && code !== oldCode) {
-            if (code.trim().length !== oldCode.trim().length)
-                console.error(
-                    `${filePath} - ERROR processing file - generated length (${code.trim().length}) differs from original length (${
-                        oldCode.trim().length
-                    })`,
-                );
-            else
-                try {
-                    writeFileSync(filePath, code, "utf-8");
-                    if (settings.logEachFixedFile) console.log(`${filePath} - fixed ${itemPosKeys!.size} cpls `);
-                } catch (e: any) {
-                    console.error(`${filePath} - ERROR FAILED TO WRITE fix for ${itemPosKeys!.size} cpls `, e);
-                    try {
-                        writeFileSync(filePath, oldCode, "utf-8");
-                    } catch (e2) {
-                        console.error("Failed to revert file to original code!");
-                    }
-                }
+        const newCplNum = suggestedId || freeCplManager.newId();
+        const newCpl = fromNumCpl(newCplNum);
+        const oldRec = cplMap.get(cplItem.cpl);
+        if (oldRec) {
+            const oldIndex = oldRec.items.indexOf(cplItem);
+            oldRec.items.splice(oldIndex, 1);
         }
+        cplItem.cplPart.replaceWith(newCpl);
+        cplItem.cpl = newCplNum;
+        const mapItem = upsertCplMap(cplItem.cpl);
+        fix_ylog_on(cplItem);
+
+        mapItem.items.push(cplItem);
+        const ybTextTransformer = cplItem.cplPart.parent as YbTextTransformer;
+        ybTextTransformer.changedCpls++;
+        changedFiles.add(ybTextTransformer);
+        badCpls.delete(cplItem);
     };
 
+    const files: Map<string, YbTextTransformer> = new Map();
+    const changedFiles: Set<YbTextTransformer> = new Set();
+
     readDirRecursive(settings.srcPath, (dirPath: string, dirent: Dirent): boolean => {
-        const filePath = joinPath(dirPath, dirent.name);
+        const absoluteFilePath = toLinuxPath(joinPath(dirPath, dirent.name));
         if (dirent.name === "node_modules" || dirent.name === "lib") {
             return false;
         }
@@ -236,21 +265,45 @@ export const fix_cpls = (settings0?: YcplmonSettings | undefined) => {
             return true;
         }
 
-        if (settings.workspaces && !filePath.includes("packages")) {
+        if (settings.workspaces && !absoluteFilePath.includes("packages")) {
             return false;
         }
 
-        if (!fileFilter(filePath)) return false;
-        onFile(filePath, true);
+        if (!fileFilter(absoluteFilePath)) return false;
+
+        const content = readFileSync(absoluteFilePath, "utf-8");
+        try {
+            const relativeFilePath = toRelPath(absoluteFilePath);
+            const ybTextTransformer = newYbTextTransformer(content, relativeFilePath);
+            files.set(relativeFilePath, ybTextTransformer);
+
+            for (const cplItem of ybTextTransformer.cpls) {
+                if (!cplItem.cpl) {
+                    zeroCpls.add(cplItem);
+                } else {
+                    const mapItem = upsertCplMap(cplItem.cpl);
+                    fix_ylog_on(cplItem);
+
+                    mapItem.items.push(cplItem);
+                    if (!cplItem.cpl || mapItem.items.length > 1) {
+                        if (mapItem.items.length == 2) {
+                            badCpls.add(mapItem.items[0]);
+                        }
+                        badCpls.add(cplItem);
+                    }
+                }
+            }
+        } catch (e: any) {
+            console.error(absoluteFilePath, " - error processing file ", e);
+        }
+
         return false;
     });
 
-    const posKeysToBeAutofixed = new Map<string, Set<string>>();
-    const addToBeAutofixed = (cplItem: CplItem) => {
-        const badCplFileSet = posKeysToBeAutofixed.get(cplItem.filePath) || new Set();
-        if (!badCplFileSet.size) posKeysToBeAutofixed.set(cplItem.filePath, badCplFileSet);
-        badCplFileSet.add(cplItem.cplPosKey);
-    };
+    for (const cplItem of zeroCpls) {
+        changeCplItemNum(cplItem);
+    }
+    zeroCpls.clear();
 
     // Remove known correct cpls from badCpls
     for (const cplItem of badCpls) {
@@ -272,8 +325,7 @@ export const fix_cpls = (settings0?: YcplmonSettings | undefined) => {
                     mapItem.items = correctItems;
                     badCpls.delete(correctItems[0]);
                     for (const item of incorrectItems) {
-                        item.cpl = 0;
-                        cplMapZeroItem.items.push(item);
+                        changeCplItemNum(item);
                     }
                 }
             }
@@ -284,14 +336,32 @@ export const fix_cpls = (settings0?: YcplmonSettings | undefined) => {
 
     // Replace zero cpls with new values
     for (const cplItem of badCpls) {
-        if (!cplItem.cpl) {
-            addToBeAutofixed(cplItem);
-        } else {
-            unfixedCpls.add(cplItem.cpl);
-        }
+        unfixedCpls.add(cplItem.cpl);
     }
 
-    for (const [filePath, cplItems] of posKeysToBeAutofixed) onFile(filePath, false, cplItems);
+    for (const ybTextTransformer of changedFiles) {
+        if (ybTextTransformer.isChanged()) {
+            if (ybTextTransformer.isLengthChanged())
+                console.error(
+                    `${ybTextTransformer.filePath} - ERROR processing file - generated length (${
+                        ybTextTransformer.toString().length
+                    }) differs from original length (${ybTextTransformer.getFullSourceString().length})`,
+                );
+            else
+                try {
+                    writeFileSync(toAbsPath(ybTextTransformer.filePath), ybTextTransformer.toString(), "utf-8");
+                    if (settings.logEachFixedFile) console.log(`${ybTextTransformer.filePath} - fixed ${ybTextTransformer.changedCpls} cpls `);
+                    totalFixes += ybTextTransformer.changedCpls;
+                } catch (e: any) {
+                    console.error(`${ybTextTransformer.filePath} - ERROR FAILED TO WRITE fix for ${ybTextTransformer.changedCpls} cpls `, e);
+                    try {
+                        writeFileSync(toAbsPath(ybTextTransformer.filePath), ybTextTransformer.getFullSourceString(), "utf-8");
+                    } catch (e2) {
+                        console.error("Failed to revert file to original code!");
+                    }
+                }
+        }
+    }
 
     let logicViolation: string | undefined;
     const cplItemsForSaving: CplItem[] = [];
@@ -307,20 +377,33 @@ export const fix_cpls = (settings0?: YcplmonSettings | undefined) => {
     }
 
     if (logicViolation) {
-        console.warn(`CODE00654011 Internal error. Many records on one cpl. Shouldn't be here! Cpl= ${logicViolation}`);
+        console.warn(`CODE00654011 Many records on one cpl. Shouldn't be here! Cpl= ${logicViolation}`);
+        logicViolations.push(logicViolation);
     } else {
         const newSavedCpls = cplItemsToStr(cplItemsForSaving);
         if (oldSavedCpls !== newSavedCpls) {
-            console.log(`Writing cpls to ${cplJsonPath}`);
-            writeFileSync(cplJsonPath, newSavedCpls, "utf-8");
+            console.log(`Writing cpls to ${cplTablePath}`);
+            writeFileSync(cplTablePath, newSavedCpls, "utf-8");
+        }
+
+        let oldCplDbStr;
+        try {
+            oldCplDbStr = readFileSync(cplDbPath, "utf-8");
+        } catch (e: any) {}
+
+        const newCplDbStr = JSON.stringify(makeCplDbContent(cplItemsForSaving), undefined, 4);
+        if (oldCplDbStr !== newCplDbStr) {
+            console.log(`Writing cpls db to ${cplTablePath}`);
+            writeFileSync(cplDbPath, newCplDbStr, "utf-8");
         }
     }
 
-    console.log(`Fixed ${totalFixes} cpls in ${posKeysToBeAutofixed.size} files`);
+    console.log(`Fixed total ${totalFixes} cpls in ${changedFiles.size} files`);
     if (unfixedCpls.size) {
         console.error(`Found invalid cpls, cant fix them:\n${[...unfixedCpls].map((cpl) => fromNumCpl(cpl)).join("\n")}\n\n`);
     }
     console.timeEnd(`Finished in`);
+    return { logicViolations };
 };
 
 /**
@@ -364,99 +447,10 @@ export function startupConsole() {
 
 /// VERSION2
 export interface CplMapItem {
-    dbItem?: CplItem;
+    dbItem?: CplDbItem;
     items: CplItem[];
 }
 export type CplMap = Map<number, CplMapItem>;
-
-export interface SplittedCplFile {
-    fileContents: string;
-    parts: CplItem[];
-}
-
-const splitByCplRegexNoCapture = /CODE\d{8}/g;
-const whitespaceRegex = /[ ][\t][\n][\r]/g;
-const splitByCplRegex = /(CODE\d{8})/g;
-
-export function makeAnchorKey(fileContents: string, cplItem: CplItem) {
-    const { filePath, pos } = cplItem;
-    const anchorSize = 200;
-    let start = pos - anchorSize;
-    if (start < 0) {
-        start = 0;
-    }
-    const anchor = fileContents
-        .slice(start, pos + anchorSize)
-        .split(splitByCplRegexNoCapture)
-        .join()
-        .split(whitespaceRegex)
-        .join("");
-
-    const anchorKey = createHash("sha256").update(anchor).digest("hex");
-    return anchorKey;
-}
-
-export function splitCplFile(filePath: string, textTransformer: GenericTextTransformer<any, any>): SplittedCplFile {
-    const parts: CplItem[] = [];
-    let match;
-
-    const r0: StrRef[] = fileContents.split(splitByCplRegex).map((s) => {
-        return { s };
-    });
-
-    const result: SplittedCplFile = {
-        fileContents,
-        parts: [],
-    };
-    if (r0.length <= 1) {
-        return result;
-    }
-
-    let pos = r0[0].s.length;
-    const posConv = strPosConverter(fileContents);
-    let nextPrefix = r0[0];
-    for (let i = 1; i < r0.length; i += 2) {
-        const { r, c } = posConv.fromPos(pos);
-
-        const prefix = nextPrefix;
-
-        const p: CplItem = {
-            cpl: toNumCpl(r0[i].s),
-            prefix: r0[i - 1],
-            tail: r0[i + 1],
-            fileLine: r,
-            linePos: c,
-            pos,
-            filePath,
-            cplPosKey: makeCplPosKey(filePath, pos),
-        };
-
-        // const strBefore = fileContents.slice(pos - 200, pos);
-        // const strAfter = fileContents.slice(pos, pos + CPL_FULL_LEN + 200);
-        p.anchorKey = makeAnchorKey(fileContents, p);
-
-        pos += r0[i].s.length;
-        pos += r0[i + 1].s.length;
-        result.parts.push(p);
-    }
-
-    return result;
-}
-
-export function joinCplFile(splittedCplFile: SplittedCplFile): string {
-    if (!splittedCplFile.parts.length) {
-        return splittedCplFile.fileContents;
-    }
-    const r0 = [];
-    let i = 0;
-    for (let part of splittedCplFile.parts) {
-        if (i++ === 0) {
-            r0.push(part.prefix);
-        }
-        r0.push(fromNumCpl(part.cpl), part.tail.s);
-    }
-    return r0.join("");
-}
 
 export function toNumCpl(cpl: string): number {
     return +cpl.slice(4);
@@ -464,8 +458,4 @@ export function toNumCpl(cpl: string): number {
 
 export function fromNumCpl(numCpl: number): string {
     return "CODE" + ("" + (numCpl + 100000000)).slice(1);
-}
-
-export function makeCplPosKey(filePath: string, pos: number): string {
-    return `${filePath}:${pos}`;
 }

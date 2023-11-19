@@ -1,5 +1,5 @@
-import { expect } from "chai";
-import { splitAndMark, TaggedStringPart } from "./GenericTextTransformer_funcs";
+import { expectDeepEqual } from "../expectDeepEqual.js";
+import { splitAndMark, TaggedStringPart } from "./GenericTextTransformer_funcs.js";
 
 const splitByCplRegex = /(CODE\d{8})/g;
 
@@ -26,11 +26,11 @@ describe("GenericTextTransformer_funcs.test.ts", () => {
         const r: TaggedStringPart[] = splitAndMark(exampleString, splitAndMarkDict);
 
         // Checking BR1, BR2,  BR3
-        expect(r).to.deep.equal(expectedR);
+        expectDeepEqual(r, expectedR);
 
         const regeneratedString = r.map((part) => part.s).join("");
 
         // Checking BR4
-        expect(regeneratedString).to.deep.equal(exampleString);
+        expectDeepEqual(regeneratedString, exampleString);
     });
 });
