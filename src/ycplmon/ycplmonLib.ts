@@ -116,16 +116,18 @@ export function cplItemsToStr(cplItems: CplItem[]): string {
 export function makeCplDbContent(cplItems: CplItem[]): any {
     const r: any = {};
     for (const cplItem of cplItems) {
-        r[cplStrWoCode(cplItem.cpl)] = {
+        const rr: any = (r[cplStrWoCode(cplItem.cpl)] = {
             posAddr: cplItem.cplPart.getSourcePosAddrStr(),
             message: cplItem.message,
             severity: cplItem.severity,
+            expectation: cplItem.expectation,
             ylog_name: cplItem.ylog_name,
+            cpl_comment: cplItem.cpl_comment,
             hasYlogOn: cplItem.ylog_on_part ? 1 : undefined,
-        };
-        for (let k in r) {
-            if (r[k] === undefined) {
-                delete r[k];
+        });
+        for (let k in rr) {
+            if (rr[k] === undefined) {
+                delete rr[k];
             }
         }
     }
@@ -376,6 +378,7 @@ export const fix_cpls = (settings0?: YcplmonSettings | undefined) => {
         }
     }
 
+    let cplDb;
     if (logicViolation) {
         console.warn(`CODE00654011 Many records on one cpl. Shouldn't be here! Cpl= ${logicViolation}`);
         logicViolations.push(logicViolation);
@@ -391,7 +394,7 @@ export const fix_cpls = (settings0?: YcplmonSettings | undefined) => {
             oldCplDbStr = readFileSync(cplDbPath, "utf-8");
         } catch (e: any) {}
 
-        const newCplDbStr = JSON.stringify(makeCplDbContent(cplItemsForSaving), undefined, 4);
+        const newCplDbStr = JSON.stringify((cplDb = makeCplDbContent(cplItemsForSaving)), undefined, 4);
         if (oldCplDbStr !== newCplDbStr) {
             console.log(`Writing cpls db to ${cplTablePath}`);
             writeFileSync(cplDbPath, newCplDbStr, "utf-8");
@@ -403,7 +406,7 @@ export const fix_cpls = (settings0?: YcplmonSettings | undefined) => {
         console.error(`Found invalid cpls, cant fix them:\n${[...unfixedCpls].map((cpl) => fromNumCpl(cpl)).join("\n")}\n\n`);
     }
     console.timeEnd(`Finished in`);
-    return { logicViolations };
+    return { logicViolations, cplDb };
 };
 
 /**

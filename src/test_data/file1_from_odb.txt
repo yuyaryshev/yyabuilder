@@ -10,6 +10,12 @@ export function foo() {
         "Message example",  {}
     );
 
+    // CODE 1 E Message example
+    ylogFunc && YLOG_step(
+        ylogFunc,
+        "CODE00005555",  {}
+    );
+
     } catch (e: any) {
         ylogFunc && YLOG_error(ylogFunc || ylogFile, e);
         throw e;

@@ -2,6 +2,7 @@ import { GenericTextTransformer, GenericTextTransformerPart } from "./GenericTex
 import { CPL_FULL_LEN, toNumCpl } from "./ycplmonLib.js";
 import { createHash } from "node:crypto";
 import { findQuotEnd, parseCplMessage, ParseCplMessageResult } from "./string_funcs.js";
+import { jsCommentRegexp } from "./jsCommentRegexp.js";
 
 const ybRegExpDict = {
     cpl: /CODE(\d{8})/g,
@@ -21,7 +22,9 @@ export interface CplItem {
 
     message?: string;
     severity?: string;
+    expectation?: string;
     ylog_name?: string;
+    cpl_comment?: string;
     ylog_on_part?: GenericTextTransformerPart<YbTt>;
 }
 
@@ -36,6 +39,7 @@ export interface TodoItem {
 }
 
 export type ParseCplMessageFromPartResult = ParseCplMessageResult & { ylog_on_part?: GenericTextTransformerPart<YbTt> };
+
 export function parseCplMessageFromPart(cplPart: GenericTextTransformerPart<YbTt>): ParseCplMessageFromPartResult {
     const s = cplPart.parent.getFullSourceString();
     const maxP = cplPart.next()?.next()?.getSourcePos() || s.length;
@@ -46,7 +50,8 @@ export function parseCplMessageFromPart(cplPart: GenericTextTransformerPart<YbTt
         if (midPart) {
             const ylog_on_part = midPart.prev();
             if (ylog_on_part && ylog_on_part.getTag() === "ylog_on") {
-                if (midPart.getStr().split("\n").length < 3 && midPart.getStr().split(";").length <= 1) {
+                let ss = midPart.getStr().split(jsCommentRegexp).join("");
+                if (ss.split("\n").length < 3 && ss.split(";").length <= 1) {
                     r.ylog_on_part = ylog_on_part;
                 }
             }

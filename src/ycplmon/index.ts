@@ -2,6 +2,7 @@
 export * from "./GenericTextTransformer.js";
 export * from "./GenericTextTransformer_funcs.js";
 export * from "./IntIdManager.js";
+export * from "./jsCommentRegexp.js";
 export * from "./readDirRecursive.js";
 export * from "./strPosToRC.js";
 export * from "./strRef.js";

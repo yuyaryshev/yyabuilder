@@ -145,4 +145,42 @@ describe("tests_on_folders.test.ts", () => {
         expectDeepEqual(logicViolations, ["CODE00000001"]);
         expectDeepEqual(readFiles(), cplDataFiles(1, 1, 1, 9, 5, 6));
     });
+
+    it("file1_from_odb.txt", function () {
+        const fileFromOdbContent = readFileSync(`./src/test_data/file1_from_odb.txt`, "utf-8");
+
+        const { testFolder, writeFiles, readFiles, deleteCplsDb } = setupTest(this, "test_folder3");
+
+        deleteCplsDb();
+        writeFiles([fileFromOdbContent]);
+
+        const { logicViolations, cplDb } = fix_cpls({ srcPath: testFolder, ...otherFixCplOpts });
+        // expectDeepEqual(readFiles()[0], "tbd");
+
+        expectDeepEqual(cplDb, {
+            "00001234": {
+                posAddr: "file0.txt:9:10:234",
+                message: "Message example",
+                ylog_name: "YLOG_step",
+            },
+            "00005555": {
+                posAddr: "file0.txt:16:10:381",
+                ylog_name: "YLOG_step",
+                cpl_comment: "1 E Message example",
+                message: "Message example",
+                expectation: "1",
+                severity: "E",
+            },
+            "00000774": {
+                posAddr: "file0.txt:23:48:575",
+                ylog_name: "YLOG_func_close",
+            },
+            "00000775": {
+                posAddr: "file0.txt:4:65:113",
+                message: "foo_foo",
+                ylog_name: "YLOG_func",
+                hasYlogOn: 1,
+            },
+        });
+    });
 });
