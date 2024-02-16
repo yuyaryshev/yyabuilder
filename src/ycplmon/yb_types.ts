@@ -3,6 +3,7 @@ import { CPL_FULL_LEN, toNumCpl } from "./ycplmonLib.js";
 import { createHash } from "node:crypto";
 import { findQuotEnd, parseCplMessage, ParseCplMessageResult } from "./string_funcs.js";
 import { jsCommentRegexp } from "./jsCommentRegexp.js";
+import { strMinPos } from "./funcs_for_ystd.js";
 
 const ybRegExpDict = {
     cpl: /CODE(\d{8})/g,
@@ -54,17 +55,23 @@ export type ParseCplMessageFromPartResult = ParseCplMessageResult & { ylog_on_pa
 
 export function parseCplMessageFromPart(cplPart: GenericTextTransformerPart<YbTt>): ParseCplMessageFromPartResult {
     const s = cplPart.parent.getFullSourceString();
-    const maxP = cplPart.next()?.next()?.getSourcePos() || s.length;
     let p = cplPart.getSourcePos();
+
+    const maxP = strMinPos(s, p + 12, cplPart.next()?.next()?.getSourcePos() || s.length, "YLOG_", "CODR", "CODE");
+
     const r: ParseCplMessageFromPartResult = parseCplMessage(s, p, maxP);
     if (r.ylog_name) {
         const midPart = cplPart.prev();
         if (midPart) {
             const ylog_on_part = midPart.prev();
+            // ylog_on_part!.getStr().split("YLOG_on")[1];
+
             if (ylog_on_part && ylog_on_part.getTag() === "ylog_on") {
                 let ss = midPart.getStr().split(jsCommentRegexp).join("");
-                if (ss.split("\n").length < 3 && ss.split(";").length <= 1) {
+                if (ss.split("\n").length < 10 && ss.split(";").length <= 1) {
                     r.ylog_on_part = ylog_on_part;
+                } else {
+                    r.ylog_on_part = undefined;
                 }
             }
         }
@@ -79,8 +86,8 @@ export class YbTextTransformer extends GenericTextTransformer<YbTt> {
     public inprints: InprintItem2[] = [];
     public todos: TodoItem[] = [];
 
-    constructor(s: string, filePath: string) {
-        super(s, filePath, ybRegExpDict);
+    constructor(s: string, relPath: string, absPath: string) {
+        super(s, relPath, absPath, ybRegExpDict);
 
         for (const part of this.iterate()) {
             switch (part.getTag()) {
@@ -92,7 +99,7 @@ export class YbTextTransformer extends GenericTextTransformer<YbTt> {
                     const cplItem: CplItem = {
                         cplPart: part,
                         cpl: toNumCpl(part.getStr()),
-                        cplPosKey: makeCplPosKey(filePath, part.getSourcePos()),
+                        cplPosKey: makeCplPosKey(relPath, part.getSourcePos()),
                         anchorKey: makeAnchorKey(textAround),
                         refs: [],
                         ...parseCplMessageFromPart(part),
@@ -118,7 +125,7 @@ export class YbTextTransformer extends GenericTextTransformer<YbTt> {
                     const endingPart = startingPart.findNext("inprint");
                     if (!endingPart) {
                         console.warn(
-                            `CODE00000000 No ending for INPRINT block in ${filePath} line ${part.getSourceLine()}. This block will be ignored!`,
+                            `CODE00000208 No ending for INPRINT block in ${relPath} line ${part.getSourceLine()}. This block will be ignored!`,
                         );
                         break;
                     }
@@ -139,8 +146,8 @@ export class YbTextTransformer extends GenericTextTransformer<YbTt> {
     }
 }
 
-export function newYbTextTransformer(s: string, filePath: string): YbTextTransformer {
-    return new YbTextTransformer(s, filePath);
+export function newYbTextTransformer(s: string, relPath: string, absPath: string): YbTextTransformer {
+    return new YbTextTransformer(s, relPath, absPath);
 }
 
 const splitByCplRegexNoCapture = /CODE\d{8}/g;

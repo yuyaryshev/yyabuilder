@@ -4,12 +4,12 @@ import { GenericTextTransformer } from "./GenericTextTransformer.js";
 
 const splitByCplRegex = /(CODE\d{8})/g;
 
-const exampleString = `alksndmjasdfn CODE00000000 111 lksndlne CODE11111111 2222 slmsdlkmsdlkm MXCD666666 3333 FD55555XC 444`;
+const exampleString = `alksndmjasdfn CODE` + `00000000 111 lksndlne CODE` + `11111111 2222 slmsdlkmsdlkm MXCD666666 3333 FD55555XC 444`;
 const expectedR = () => [
     { s: `alksndmjasdfn `, sourcePos: 0, captures: [] },
-    { s: `CODE00000000`, t: "cpl", sourcePos: 14, captures: ["00000000"] },
+    { s: `CODE` + `00000000`, t: "cpl", sourcePos: 14, captures: ["00000000"] },
     { s: ` 111 lksndlne `, sourcePos: 26, captures: [] },
-    { s: `CODE11111111`, t: "cpl", captures: ["11111111"], sourcePos: 40 },
+    { s: `CODE` + `11111111`, t: "cpl", captures: ["11111111"], sourcePos: 40 },
     { s: ` 2222 slmsdlkmsdlkm `, sourcePos: 52, captures: [] },
     { s: `MXCD666666`, t: "mxcd", captures: ["666666"], sourcePos: 72 },
     { s: ` 3333 `, sourcePos: 82, captures: [] },
@@ -24,7 +24,7 @@ describe("GenericTextTransformer.test.ts", () => {
             mxcd: /MXCD(\d{6})/g,
             fdxc: /FD(\d{5})XC/g,
         };
-        const tr = new GenericTextTransformer(exampleString, "test.js", regExpDict);
+        const tr = new GenericTextTransformer(exampleString, "test.js", "test.js", regExpDict);
 
         tr.forEach((part) => {
             if (part.t === "cpl") {
@@ -44,7 +44,7 @@ describe("GenericTextTransformer.test.ts", () => {
             mxcd: /MXCD(\d{6})/g,
             fdxc: /FD(\d{5})XC/g,
         };
-        const tr = new GenericTextTransformer(exampleString, "test.js", regExpDict);
+        const tr = new GenericTextTransformer(exampleString, "test.js", "test.js", regExpDict);
 
         expectDeepEqual(tr.toPlain(), expectedR());
     });

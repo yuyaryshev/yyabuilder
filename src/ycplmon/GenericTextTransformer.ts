@@ -62,13 +62,15 @@ export class GenericTextTransformer<TTYPE extends string> {
     private _isChanged: boolean = false;
     private _lengthDifference: number = 0;
     public _touched: boolean = false;
-    public readonly filePath: string;
+    public readonly relPath: string;
+    public readonly absPath: string;
     public readonly fullSourceString: string;
     public readonly sourceStrPosConverter;
     private _newContentString: string = "";
 
-    constructor(s: string, filePath: string, regExpDict?: RegExpDict) {
-        this.filePath = filePath;
+    constructor(s: string, relPath: string, absPath: string, regExpDict?: RegExpDict) {
+        this.relPath = relPath;
+        this.absPath = absPath;
         this.fullSourceString = s;
         this.sourceStrPosConverter = strPosConverter(s);
         this._first = new GenericTextTransformerPart<TTYPE>(this, s, 0, undefined, []);
@@ -91,7 +93,7 @@ export class GenericTextTransformer<TTYPE extends string> {
     }
 
     getFilePath() {
-        return this.filePath;
+        return this.relPath;
     }
 
     getFullSourceString() {
@@ -161,7 +163,7 @@ export class GenericTextTransformer<TTYPE extends string> {
 
         if (!part.m_prev && !part.m_next) {
             return;
-            //throw new Error(`CODE00000000 ERROR This part is detached from list!`);
+            //throw new Error(`CODE00000195 ERROR This part is detached from list!`);
         }
 
         if (part.m_prev) {
@@ -178,13 +180,13 @@ export class GenericTextTransformer<TTYPE extends string> {
                 this._last = this._first;
             } else {
                 if (!part.m_next) {
-                    throw new Error(`CODE00000000 ERROR Internal error. This part should have 'm_next', because the list isn't empty!`);
+                    throw new Error(`CODE00000196 ERROR Internal error. This part should have 'm_next', because the list isn't empty!`);
                 }
                 this._first = part.m_next;
             }
         } else if (part === this._last) {
             if (!part.m_prev) {
-                throw new Error(`CODE00000000 ERROR Internal error. This part should have 'm_next', because the list isn't empty!`);
+                throw new Error(`CODE00000197 ERROR Internal error. This part should have 'm_next', because the list isn't empty!`);
             }
             this._last = part.m_prev;
         }
@@ -263,12 +265,12 @@ export class GenericTextTransformer<TTYPE extends string> {
     ): GenericTextTransformerPart<TTYPE> {
         if (!startingPart) {
             if (!endingPart) {
-                throw new Error(`CODE00000000 Starting and ending parts cant empty togather!`);
+                throw new Error(`CODE00000198 Starting and ending parts cant empty togather!`);
             }
 
             let currentPart = endingPart.prev();
             if (!currentPart) {
-                throw new Error(`CODE00000000 Invalid ending part!`);
+                throw new Error(`CODE00000199 Invalid ending part!`);
             }
             while (currentPart.prev() !== undefined) {
                 currentPart.joinPrev();
@@ -277,7 +279,7 @@ export class GenericTextTransformer<TTYPE extends string> {
         }
         let currentPart = startingPart.next();
         if (!currentPart) {
-            throw new Error(`CODE00000000 Invalid staring part!`);
+            throw new Error(`CODE00000200 Invalid staring part!`);
         }
         while (currentPart.next() !== endingPart) {
             currentPart.joinNext();
@@ -324,7 +326,7 @@ export class GenericTextTransformerPart<TTYPE extends string> {
     }
 
     getFilePath() {
-        return this.parent.filePath;
+        return this.parent.relPath;
     }
 
     getFullSourceString() {
@@ -361,7 +363,7 @@ export class GenericTextTransformerPart<TTYPE extends string> {
 
     getSourcePosAddrStr() {
         const { r, c } = this.parent.sourceStrPosConverter.fromPos(this.sourcePos);
-        return `${this.parent.filePath}:${r}:${c}:${this.sourcePos}`;
+        return `${this.parent.relPath}:${r}:${c}:${this.sourcePos}`;
     }
 
     remove() {
@@ -502,17 +504,17 @@ export class GenericTextTransformerPart<TTYPE extends string> {
 
         if (opts.firstOnly) {
             // TODO splitBy opts.firstOnly
-            throw new Error(`CODE00000000 splitBy opts.firstOnly @notImplemented`);
+            throw new Error(`CODE00000201 splitBy opts.firstOnly @notImplemented`);
         }
 
         if (opts.lastOnly) {
             // TODO splitBy opts.lastOnly
-            throw new Error(`CODE00000000 splitBy opts.lastOnly @notImplemented`);
+            throw new Error(`CODE00000202 splitBy opts.lastOnly @notImplemented`);
         }
 
         if (opts.maxDistance) {
             // TODO splitBy opts.maxDistance
-            throw new Error(`CODE00000000 splitBy opts.maxDistance @notImplemented`);
+            throw new Error(`CODE00000203 splitBy opts.maxDistance @notImplemented`);
         }
 
         let sourcePos = this.sourcePos;

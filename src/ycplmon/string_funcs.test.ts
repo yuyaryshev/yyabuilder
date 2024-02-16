@@ -56,19 +56,19 @@ describe("string_funcs", () => {
     });
 
     it("parseCplMessage - should handle mixed delimiters with message in the next string", () => {
-        const s = 'Different "CODE00987654", `separate message` text';
+        const s = 'Different "CODE' + '00987654", `separate message` text';
         const r = parseCplMessageTst(s, 11);
         expectDeepEqual(r, { message: "separate message" });
     });
 
     it("parseCplMessage - with severity", () => {
-        const s = 'Different "CODE00987654","E", `separate message` text';
+        const s = 'Different "CODE' + '00987654","E", `separate message` text';
         const r = parseCplMessageTst(s, 11);
         expectDeepEqual(r, { message: "separate message", severity: "E" });
     });
 
     it("parseCplMessage - with ylog function", () => {
-        const s = 'Another YLOG_message("CODE00987654","E", `separate message` text';
+        const s = 'Another YLOG_message("CODE' + '00987654","E", `separate message` text';
         const r = parseCplMessageTst(s, 23);
         expectDeepEqual(r, { message: "separate message", severity: "E", ylog_name: "YLOG_message" });
     });

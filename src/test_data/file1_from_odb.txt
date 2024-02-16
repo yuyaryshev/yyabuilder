@@ -1,16 +1,16 @@
 import fs from 'fs';
 
 export function foo() {
-    const ylogFunc = YLOG_on(100000000) && YLOG_func(ylogFile, "CODE00000000", `foo_foo`, undefined, { data: {} });
+    const ylogFunc = YLOG_on(100000000) && YLOG_func(ylogFile, "CODE00000000", `foo_775_foo`, undefined, { data: {} });
     try{
 
     ylogFunc && YLOG_step(
         ylogFunc,
         "CODE00001234",
-        "Message example",  {}
+        "Message 1234 baz",  {}
     );
 
-    // CODE 1 E Message example
+    // CODE 1 E Message 5555 sphere
     ylogFunc && YLOG_step(
         ylogFunc,
         "CODE00005555",  {}

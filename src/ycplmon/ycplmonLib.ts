@@ -12,9 +12,13 @@ import { StrRef } from "./strRef.js";
 import { GenericTextTransformer } from "./GenericTextTransformer.js";
 import { CplItem, CplRefItem, cplRefPrefix, makeCplPosKey, newYbTextTransformer, YbTextTransformer } from "./yb_types.js";
 import { writeFileIfChangedSync } from "./writeFileIfChanged.js";
+import { TsvDb, TsvDbOpts } from "../TsvDb.js";
+import { defaultCplTableColumns, makeCplDbOpts } from "../CplRecord.js";
 
 export const cplTableFileName = "cpl.clsv";
 export const cplDbFileName = "cpl.json";
+export const cplDb2FileName = "cpl.tsv";
+
 export const missingScenariosFileName = "missing_scenarios.txt";
 const ycplmonGeneratedFiles = [cplTableFileName, cplDbFileName, missingScenariosFileName];
 
@@ -182,12 +186,14 @@ export function toLinuxPath(s: string): string {
     return s.split("\\").join("/");
 }
 
-export function fix_ylog_on(cplItem: CplItem) {
+export function fix_ylog_on(cplItem: CplItem, changedFiles: Set<YbTextTransformer>) {
     if (cplItem.ylog_on_part) {
         const [prefix, numStr, suffix] = cplItem.ylog_on_part.captures;
         const newNum = 100000000 + cplItem.cpl;
         if (+numStr !== newNum) {
-            cplItem.ylog_on_part.replaceWith(`${prefix}${newNum}${suffix}`);
+            const newPartStr = `${prefix}${newNum}${suffix}`;
+            cplItem.ylog_on_part.replaceWith(newPartStr);
+            changedFiles.add(cplItem.ylog_on_part.parent as any);
         }
     }
 }
@@ -204,18 +210,15 @@ export const fix_cpls = (settings0?: YcplmonSettings | undefined) => {
 
     const cplTablePath = resolvePath(settings.srcPath, cplTableFileName);
     const cplDbPath = resolvePath(settings.srcPath, cplDbFileName);
+    const cplDb2Path = resolvePath(settings.srcPath, cplDb2FileName);
     const missingScenariosPath = resolvePath(settings.srcPath, missingScenariosFileName);
+
     function toRelPath(s: string) {
         s = toLinuxPath(s);
         if (s.startsWith(folderPath)) {
             return s.slice(folderPath.length);
         }
         return s;
-    }
-
-    function toAbsPath(s: string) {
-        s = toLinuxPath(s);
-        return !s.startsWith(folderPath) ? folderPath + s : s;
     }
 
     let oldSavedCpls;
@@ -295,7 +298,7 @@ export const fix_cpls = (settings0?: YcplmonSettings | undefined) => {
         cplItem.cplPart.replaceWith(newCpl);
         cplItem.cpl = newCplNum;
         const mapItem = upsertCplMap(cplItem.cpl);
-        fix_ylog_on(cplItem);
+        fix_ylog_on(cplItem, changedFiles);
 
         mapItem.items.push(cplItem);
         const ybTextTransformer = cplItem.cplPart.parent as YbTextTransformer;
@@ -326,7 +329,7 @@ export const fix_cpls = (settings0?: YcplmonSettings | undefined) => {
         const content = readFileSync(absoluteFilePath, "utf-8");
         try {
             const relativeFilePath = toRelPath(absoluteFilePath);
-            const ybTextTransformer = newYbTextTransformer(content, relativeFilePath);
+            const ybTextTransformer = newYbTextTransformer(content, relativeFilePath, absoluteFilePath);
             files.set(relativeFilePath, ybTextTransformer);
 
             for (const cplItem of ybTextTransformer.cpls) {
@@ -334,7 +337,7 @@ export const fix_cpls = (settings0?: YcplmonSettings | undefined) => {
                     zeroCpls.add(cplItem);
                 } else {
                     const mapItem = upsertCplMap(cplItem.cpl);
-                    fix_ylog_on(cplItem);
+                    fix_ylog_on(cplItem, changedFiles);
 
                     mapItem.items.push(cplItem);
                     if (!cplItem.cpl || mapItem.items.length > 1) {
@@ -421,7 +424,7 @@ export const fix_cpls = (settings0?: YcplmonSettings | undefined) => {
         if (ybTextTransformer.isChanged()) {
             if (ybTextTransformer.lengthDifference() > ybTextTransformer.lengthVariation)
                 console.error(
-                    `${ybTextTransformer.filePath} - ERROR processing file - generated length (${
+                    `${ybTextTransformer.relPath} - ERROR processing file - generated length (${
                         ybTextTransformer.toString().length
                     }) differs from original length (${ybTextTransformer.getFullSourceString().length}), allowedVariation = ${
                         ybTextTransformer.lengthVariation
@@ -429,13 +432,13 @@ export const fix_cpls = (settings0?: YcplmonSettings | undefined) => {
                 );
             else
                 try {
-                    writeFileSync(toAbsPath(ybTextTransformer.filePath), ybTextTransformer.toString(), "utf-8");
-                    if (settings.logEachFixedFile) console.log(`${ybTextTransformer.filePath} - fixed ${ybTextTransformer.changedCpls} cpls `);
+                    writeFileSync(ybTextTransformer.absPath, ybTextTransformer.toString(), "utf-8");
+                    if (settings.logEachFixedFile) console.log(`${ybTextTransformer.relPath} - fixed ${ybTextTransformer.changedCpls} cpls `);
                     totalFixes += ybTextTransformer.changedCpls;
                 } catch (e: any) {
-                    console.error(`${ybTextTransformer.filePath} - ERROR FAILED TO WRITE fix for ${ybTextTransformer.changedCpls} cpls `, e);
+                    console.error(`${ybTextTransformer.relPath} - ERROR FAILED TO WRITE fix for ${ybTextTransformer.changedCpls} cpls `, e);
                     try {
-                        writeFileSync(toAbsPath(ybTextTransformer.filePath), ybTextTransformer.getFullSourceString(), "utf-8");
+                        writeFileSync(ybTextTransformer.absPath, ybTextTransformer.getFullSourceString(), "utf-8");
                     } catch (e2) {
                         console.error("Failed to revert file to original code!");
                     }
@@ -470,6 +473,52 @@ export const fix_cpls = (settings0?: YcplmonSettings | undefined) => {
         const newCplDbStr = JSON.stringify((cplDb = makeCplDbContent(cplItemsForSaving)), undefined, 4);
         if (writeFileIfChangedSync(cplDbPath, newCplDbStr)) {
             console.log(`Written cpls to ${cplTablePath}`);
+        }
+
+        try {
+            const opts: TsvDbOpts = {
+                tsvFilePath: cplDb2Path,
+                columns: defaultCplTableColumns as any,
+                typeCol: undefined,
+                typeDefs: { default: { pkCols: ["cpl"] } },
+                orderby: ["file_path", "source_pos"],
+            };
+            const cplDb2 = new TsvDb(opts);
+
+            try {
+                cplDb2.importTsv();
+            } catch (e: any) {
+                if (e.code !== "ENOENT") {
+                    throw e;
+                }
+            }
+            for (let cplItem of cplItemsForSaving) {
+                const { cpl: cplNum, ...other } = cplItem;
+                const { r, c } = cplItem.cplPart.getSourceLineAndPos();
+                const rec = {
+                    cpl: fromNumCpl(cplItem.cpl),
+                    file_path: cplItem.cplPart.getFilePath(),
+                    file_line: r,
+                    file_line_pos: c,
+                    source_pos: cplItem.cplPart.sourcePos,
+                    package: cplItem.cplPart.getFilePath().split("/")[1],
+
+                    severity: cplItem.severity,
+                    expectation: cplItem.expectation,
+                    ylog_name: cplItem.ylog_name,
+                    cpl_comment: cplItem.cpl_comment,
+                    has_ylog_on: cplItem.ylog_on_part ? 1 : 0,
+
+                    text: cplItem.message,
+                    anchor_key: cplItem.anchorKey,
+                };
+                cplDb2.upsert(rec);
+            }
+
+            cplDb2.exportTsv();
+            console.log(`Written cplDb2 to ${cplDb2Path}`);
+        } catch (e: any) {
+            console.error(`Error in attempt to writte cplDb2 to ${cplDb2Path}. ${e.message} ${e.stack}`);
         }
 
         const missingScenariosStr = (missingScenarios = makeMissingScenarios(cplItemsForSaving, cplRefs));

@@ -3,12 +3,12 @@ import { splitAndMark, TaggedStringPart } from "./GenericTextTransformer_funcs.j
 
 const splitByCplRegex = /(CODE\d{8})/g;
 
-const exampleString = `alksndmjasdfn CODE00000000 111 lksndlne CODE11111111 2222 slmsdlkmsdlkm MXCD666666 3333 FD55555XC 444`;
+const exampleString = `alksndmjasdfn CODE` + `00000205 111 lksndlne CODE` + `11111111 2222 slmsdlkmsdlkm MXCD666666 3333 FD55555XC 444`;
 const expectedR = [
     { s: `alksndmjasdfn ` },
-    { s: `CODE00000000`, t: "cpl", captures: ["00000000"] },
+    { s: `CODE` + `00000205`, t: "cpl", captures: ["00000205"] },
     { s: ` 111 lksndlne ` },
-    { s: `CODE11111111`, t: "cpl", captures: ["11111111"] },
+    { s: `CODE` + `11111111`, t: "cpl", captures: ["11111111"] },
     { s: ` 2222 slmsdlkmsdlkm ` },
     { s: `MXCD666666`, t: "mxcd", captures: ["666666"] },
     { s: ` 3333 ` },

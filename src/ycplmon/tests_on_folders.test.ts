@@ -48,11 +48,11 @@ function utDeepClone(a: any) {
 function setupTest(pthis: any, testFolderName: string) {
     const testName = pthis?.test?.title || "";
     if (!testName) {
-        throw new Error(`CODE00000000 No test name!`);
+        throw new Error(`CODE00000206 No test name!`);
     }
     const testFolder = getTestFolder(testFolderName || testName);
     if (!testFolder) {
-        throw new Error(`CODE00000000 No testFolder name!`);
+        throw new Error(`CODE00000207 No testFolder name!`);
     }
     const writeFiles = (dataFiles: string[]) => writeFiles0(testFolder, dataFiles);
     const deleteCplsDb = () => {
@@ -142,7 +142,7 @@ describe("tests_on_folders.test.ts", () => {
         writeFiles(cplDataFiles(1, 1, 1, 9, 5, 0));
 
         const { logicViolations } = fix_cpls({ srcPath: testFolder, ...otherFixCplOpts });
-        expectDeepEqual(logicViolations, ["CODE00000001"]);
+        expectDeepEqual(logicViolations, ["CODE" + "00000001"]);
         expectDeepEqual(readFiles(), cplDataFiles(1, 1, 1, 9, 5, 6));
     });
 
@@ -159,28 +159,28 @@ describe("tests_on_folders.test.ts", () => {
 
         expectDeepEqual(cplDb, {
             "00001234": {
-                posAddr: "file0.txt:9:10:234",
-                message: "Message example",
+                posAddr: "file0.txt:9:10:238",
+                message: "Message 1234 baz",
                 ylog_name: "YLOG_step",
                 refs: [],
             },
             "00005555": {
-                posAddr: "file0.txt:16:10:381",
-                message: "Message example",
+                posAddr: "file0.txt:16:10:390",
+                message: "Message 5555 sphere",
                 severity: "E",
                 expectation: "1",
                 ylog_name: "YLOG_step",
-                cpl_comment: "1 E Message example",
-                refs: ["file0.txt:28:6:632"],
+                cpl_comment: "1 E Message 5555 sphere",
+                refs: ["file0.txt:28:6:641"],
             },
             "00000774": {
-                posAddr: "file0.txt:23:48:575",
+                posAddr: "file0.txt:23:48:584",
                 ylog_name: "YLOG_func_close",
                 refs: [],
             },
             "00000775": {
                 posAddr: "file0.txt:4:65:113",
-                message: "foo_foo",
+                message: "foo_775_foo",
                 ylog_name: "YLOG_func",
                 hasYlogOn: 1,
                 refs: [],
@@ -191,10 +191,10 @@ describe("tests_on_folders.test.ts", () => {
             missingScenarios.trim(),
             (
                 `file0.txt\n` +
-                `    "CODR00001234    1 D Message example", // YLOG_step\n` +
-                `    "CODR00005555    1 E Message example", // YLOG_step\n` +
+                `    "CODR00001234    1 D Message 1234 baz", // YLOG_step\n` +
+                `    "CODR00005555    1 E Message 5555 sphere", // YLOG_step\n` +
                 `    "CODR00000774    1 D ?", // YLOG_func_close\n` +
-                `    "CODR00000775    1 D foo_foo", // YLOG_func\n` +
+                `    "CODR00000775    1 D foo_775_foo", // YLOG_func\n` +
                 ``
             ).trim(),
         );

@@ -62,12 +62,12 @@ function splitAndMark(s: string, dict: SplitAndMarkDict): TaggedStringPart[] {
     return parts;
 }
 
-const exampleString = `alksndmjasdfn CODE00000000 111 lksndlne CODE11111111 2222 slmsdlkmsdlkm MXCD666666 3333 FD55555XC 444`;
+const exampleString = `alksndmjasdfn CODE0000` + `1004 111 lksndlne CODE` + `11111111 2222 slmsdlkmsdlkm MXCD666666 3333 FD55555XC 444`;
 const expectedR = [
     { s: `alksndmjasdfn ` },
-    { s: `CODE00000000`, t: "cpl" },
+    { s: `CODE` + `00001004`, t: "cpl" },
     { s: ` 111 lksndlne ` },
-    { s: `CODE11111111`, t: "cpl" },
+    { s: `CODE` + `11111111`, t: "cpl" },
     { s: ` 2222 slmsdlkmsdlkm ` },
     { s: `MXCD666666`, t: "mxcd" },
     { s: ` 3333 ` },

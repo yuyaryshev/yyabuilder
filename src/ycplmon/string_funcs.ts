@@ -1,4 +1,5 @@
 import { CPL_FULL_LEN } from "./ycplmonLib.js";
+import { isCplAt } from "./isCpl.js";
 
 export function unescapeString(s: string) {
     return s.split("\\").join("");
@@ -83,6 +84,7 @@ function addFromCplComment(r: ParseCplMessageResult, cplComment: string | undefi
 }
 
 export function parseCplMessage(s: string, p: number, maxP: number) {
+    const cpl = s.slice(p, p + 12);
     let r: ParseCplMessageResult = {};
     try {
         // find ylog_name
@@ -99,9 +101,15 @@ export function parseCplMessage(s: string, p: number, maxP: number) {
         }
 
         // find cpl_comment
-        for (let pp = p; pp >= 0; pp--) {
-            if (p - pp > 100) {
+        for (let pp = p - 5; pp >= 0; pp--) {
+            if (p - pp > 400) {
                 break;
+            }
+
+            if (s[pp] === "C") {
+                if (isCplAt(s, pp)) {
+                    break;
+                }
             }
 
             if (s[pp] === "/" && s.substring(pp, pp + cplCommentPrefix.length) === cplCommentPrefix) {
@@ -109,6 +117,7 @@ export function parseCplMessage(s: string, p: number, maxP: number) {
                     .slice(pp + cplCommentPrefix.length, p)
                     .split("\n")[0]
                     .trim();
+                break;
             }
         }
 

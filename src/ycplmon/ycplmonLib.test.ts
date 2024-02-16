@@ -14,7 +14,7 @@ function genStr(len: number): string {
 describe("ycplmonLib.test.ts", () => {
     it("splitByCpl", () => {
         const s: string = "This is a sample text with CODE and CODE" + "0000 and CODE" + "00000158 and CODE" + "00000159 codes.";
-        const r0 = newYbTextTransformer(s, "unused.js");
+        const r0 = newYbTextTransformer(s, "unused.js", "unused.js");
 
         expectDeepEqual(r0.toStrings(), [
             "This is a sample text with CODE and CODE0000 and ",
@@ -34,7 +34,7 @@ describe("ycplmonLib.test.ts", () => {
 
         expectDeepEqual(r[1], {
             sourcePos: 49,
-            s: "CODE00000158",
+            s: "CODE" + "00000158",
             t: "cpl",
             captures: ["00000158"],
         });
@@ -45,20 +45,20 @@ describe("ycplmonLib.test.ts", () => {
 
     it("joinCplFile", () => {
         const s: string = "This is a sample text with CODE" + " and CODE" + "0000 and CODE" + "00000162 and CODE" + "00000163 codes.";
-        const r = newYbTextTransformer(s, "unused.js").toString();
+        const r = newYbTextTransformer(s, "unused.js", "unused.js").toString();
         expectDeepEqual(r, s);
     });
 
     it("edgeCases", () => {
         function testLine(s: string) {
             try {
-                const r = newYbTextTransformer(s, "unused.js").toString();
+                const r = newYbTextTransformer(s, "unused.js", "unused.js").toString();
                 expectDeepEqual(r, s);
             } catch (e: any) {
                 console.log(`CODE00035200 Failed case:\n
                 it("failedEdgeCase", () => {
                     const s = ${JSON.stringify(s)};
-                    const r = newYbTextTransformer(s, "unused.js").toString();
+                    const r = newYbTextTransformer(s, "unused.js","unused.js").toString();
                     expectDeepEqual(r,s);
                 });
                 `);
