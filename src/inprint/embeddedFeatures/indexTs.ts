@@ -10,7 +10,7 @@ export const indexTsEmbeddedFeature: EmbeddedFeature = {
 Use exclude:['name1','name2'] to exclude some files. 
 Use merge:[{name:'MERGE_NAME', suffix:'MERGE_SUFFIX', asObject:false}] to merge exported consts with specified MERGE_SUFFIX as an array into one variable MERGE_NAME`,
     func: inprintIndexTs,
-    help: `// ${"@"}INPRINT_START {exclude:[""], merge:[{name:"embeddedFeatures:EmbeddedFeature[]", suffix:"EmbeddedFeature"}]}
+    help: `// ${"@"}INPRINT_START {exclude:[""], merge:[{name:"embeddedFeatures:EmbeddedFeature[]", suffix:"EmbeddedFeature", definitionStr:"export async function initTables(dbEnv: ServiceDbEnv) {\\n  return {\\n    ITEMS\\n  }\\n}", itemStr:"FILE:await VAR(dbEnv),"}]}
 export * from "./indexTs.js";
 
 import { indexTsEmbeddedFeature } from "./indexTs.js";
@@ -25,6 +25,8 @@ export interface IndexTsMergeDefinition {
     name: string;
     suffix: string;
     asObject?: boolean;
+    definitionStr?: string;
+    itemStr?: string;
 }
 
 export function inprintIndexTs(paramsObject: any, options: InprintOptions) {
@@ -61,19 +63,34 @@ export function inprintIndexTs(paramsObject: any, options: InprintOptions) {
     const mergeArrayBlocks = [];
     for (const mergeDefinition of merges) {
         const mergeLines = [];
+        const mergeVarDefs: { VAR: string; FILE: string }[] = [];
         const mergeVars = [];
         for (const nameWoExt of fileNames) {
-            mergeLines.push(`import {${nameWoExt}${mergeDefinition.suffix}} from "./${nameWoExt}.js";`);
+            const varName = `${nameWoExt}${mergeDefinition.suffix}`;
+            mergeVarDefs.push({ VAR: varName, FILE: nameWoExt });
+            mergeLines.push(`import {${varName}} from "./${nameWoExt}.js";`);
             mergeVars.push(`${mergeDefinition.asObject ? `${nameWoExt}:` : ""}${nameWoExt}${mergeDefinition.suffix}`);
         }
-        mergeArrayBlocks.push(
-            `
+        if (mergeDefinition.definitionStr) {
+            const itemsStrs: string[] = [];
+            for (const varDef of mergeVarDefs) {
+                itemsStrs.push(mergeDefinition.itemStr!.split("VAR").join(varDef.VAR).split("FILE").join(varDef.FILE));
+            }
+            mergeArrayBlocks.push(
+                `
+${mergeLines.join("\n")}
+${mergeDefinition.definitionStr.split("ITEMS").join(itemsStrs.join())}
+`.trim(),
+            );
+        } else {
+            mergeArrayBlocks.push(
+                `
 ${mergeLines.join("\n")}
 export const ${mergeDefinition.name} = ${mergeDefinition.asObject ? "{" : "["}${mergeVars.join(", ")}${mergeDefinition.asObject ? "}" : "]"};
 `.trim(),
-        );
+            );
+        }
     }
-
     const r = `
 ${reexports}
 
